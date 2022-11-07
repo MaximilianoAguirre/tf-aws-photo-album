@@ -1,8 +1,8 @@
 ########################################################
 # PHOTO INFO TABLE
 ########################################################
-resource "aws_dynamodb_table" "photo_info_table" {
-  name             = var.bucket_name
+resource "aws_dynamodb_table" "photo_tracker" {
+  name             = "${local.dash_prefix}photo-tracker"
   billing_mode     = "PAY_PER_REQUEST"
   hash_key         = "hash_key"
   range_key        = "range_key"

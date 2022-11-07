@@ -1,3 +1,3 @@
 pip install -r requirements.txt -t python/
 
-zip -r blurhash.zip .
+zip -r image_processor.zip .

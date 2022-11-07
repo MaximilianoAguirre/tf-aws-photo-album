@@ -1,13 +1,19 @@
 #########################################################################################
 # GENERAL
 #########################################################################################
-variable "bucket_name" {
+variable "prefix" {
   type        = string
-  description = "Bucket name"
+  default     = null
+  description = "Prefix to add to all resources"
+}
+
+locals {
+  dash_prefix  = var.prefix != null ? "${var.prefix}-" : ""
+  slash_prefix = var.prefix != null ? "/${var.prefix}/" : "/"
 }
 
 variable "tags" {
-  default     = {}
   type        = map(string)
+  default     = {}
   description = "Tags to apply to all resources"
 }
