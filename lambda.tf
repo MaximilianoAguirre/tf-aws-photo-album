@@ -9,7 +9,7 @@ resource "aws_lambda_layer_version" "python38_image_processor" {
 }
 
 module "image_processor" {
-  source = "terraform-aws-modules/lambda/aws"
+  source  = "terraform-aws-modules/lambda/aws"
   version = "4.2.0"
 
   function_name            = "${local.dash_prefix}image-processor"
@@ -39,6 +39,12 @@ module "image_processor" {
       resources = ["${module.photo_bucket.s3_bucket_arn}/*"]
     }
 
+    s3_write = {
+      effect    = "Allow"
+      actions   = ["s3:PutObject"]
+      resources = ["${module.photo_assets_bucket.s3_bucket_arn}/*"]
+    }
+
     dynamodb = {
       effect    = "Allow"
       actions   = ["dynamodb:PutItem", "dynamodb:Scan", "dynamodb:Query", "dynamodb:UpdateItem"]
@@ -47,7 +53,9 @@ module "image_processor" {
   }
 
   environment_variables = {
-    photo_table = aws_dynamodb_table.photo_tracker.id
+    photo_table         = aws_dynamodb_table.photo_tracker.id
+    photo_bucket        = module.photo_bucket.s3_bucket_id
+    photo_assets_bucket = module.photo_assets_bucket.s3_bucket_id
   }
 }
 

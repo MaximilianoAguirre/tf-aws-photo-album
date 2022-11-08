@@ -10,6 +10,20 @@ resource "aws_dynamodb_table" "photo_tracker" {
   stream_view_type = "NEW_AND_OLD_IMAGES"
   tags             = var.tags
 
+  global_secondary_index {
+    name            = "inverted"
+    hash_key        = "range_key"
+    range_key       = "hash_key"
+    projection_type = "ALL"
+  }
+
+  global_secondary_index {
+    name            = "geohash"
+    hash_key        = "range_key"
+    range_key       = "geohash"
+    projection_type = "ALL"
+  }
+
   attribute {
     name = "hash_key"
     type = "S"
@@ -17,6 +31,11 @@ resource "aws_dynamodb_table" "photo_tracker" {
 
   attribute {
     name = "range_key"
+    type = "S"
+  }
+
+  attribute {
+    name = "geohash"
     type = "S"
   }
 
