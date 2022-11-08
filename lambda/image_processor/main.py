@@ -45,7 +45,7 @@ def set_image_size(image, key):
     return width, height
 
 
-def create_resized_images(image, key):
+def create_resized_images(image, key, content_type):
     pillow_image = pil_image.open(image)
     width, height = pillow_image.size
 
@@ -60,8 +60,16 @@ def create_resized_images(image, key):
         s3_resource.Bucket(PHOTO_ASSETS_BUCKET).upload_file(
             f"{TMP_DIR}/{new_width}/{key}",
             f"{new_width}/{key}",
-            ExtraArgs={"ContentType": "image/jpeg"},
+            ExtraArgs={"ContentType": content_type},
         )
+
+    # Update dynamoDB item
+    dynamo_client.update_item(
+        TableName=PHOTO_TABLE,
+        Key={"hash_key": {"S": key}, "range_key": {"S": "image"}},
+        UpdateExpression=f"SET resized = :resized",
+        ExpressionAttributeValues={":resized": {"BOOL": True}},
+    )
 
 
 def set_blurhash(image, key):
@@ -75,6 +83,8 @@ def set_blurhash(image, key):
         UpdateExpression=f"SET blurhash = :b",
         ExpressionAttributeValues={":b": {"S": hash}},
     )
+
+    return hash
 
 
 def decimal_coords(coords, ref):
@@ -108,12 +118,28 @@ def set_image_geohash(image, key):
                 },
             )
 
+            return geohash, latitude, longitude
+
         except Exception as e:
             print("No coordinates")
             print(e)
-            raise e
     else:
         print("The Image has no EXIF information")
+
+
+def set_object_type(key):
+    metadata = s3_client.head_object(Bucket=PHOTO_BUCKET, Key=key)
+    content_type = metadata.get("ContentType", "")
+
+    # Update dynamoDB item
+    dynamo_client.update_item(
+        TableName=PHOTO_TABLE,
+        Key={"hash_key": {"S": key}, "range_key": {"S": "image"}},
+        UpdateExpression=f"SET content_type = :content_type",
+        ExpressionAttributeValues={":content_type": {"S": content_type}},
+    )
+
+    return content_type
 
 
 def lambda_handler(event, context):
@@ -127,6 +153,7 @@ def lambda_handler(event, context):
 
     # Create base item in dynamoDB
     create_dynamo_item(key)
+    content_type = set_object_type(key)
 
     # Download image
     tmp_image = f"{TMP_DIR}/{key}"
@@ -139,7 +166,7 @@ def lambda_handler(event, context):
     set_blurhash(tmp_image, key)
 
     # Create resized images
-    create_resized_images(tmp_image, key)
+    create_resized_images(tmp_image, key, content_type)
 
     # Set image geohash
     set_image_geohash(tmp_image, key)

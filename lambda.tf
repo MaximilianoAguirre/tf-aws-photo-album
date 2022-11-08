@@ -35,7 +35,7 @@ module "image_processor" {
   policy_statements = {
     s3_read = {
       effect    = "Allow"
-      actions   = ["s3:GetObject", "s3:GetObjectTagging", "s3:PutObjectTagging"]
+      actions   = ["s3:GetObject", "s3:HeadObject"]
       resources = ["${module.photo_bucket.s3_bucket_arn}/*"]
     }
 
