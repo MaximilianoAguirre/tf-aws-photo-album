@@ -7,7 +7,7 @@ import { useLocatedPhotos } from "api/dynamo"
 export const ImageDrawer = forwardRef((props, ref) => {
     const [open, setOpen] = useState(false)
     const [hash, setHash] = useState(null)
-    const { data, isLoading } = useLocatedPhotos(hash, {enabled: Boolean(hash)})
+    const { data, isLoading } = useLocatedPhotos(hash, { limit: 5, options: { enabled: Boolean(hash) } })
 
     useImperativeHandle(ref, () => ({
         open() {
@@ -32,7 +32,6 @@ export const ImageDrawer = forwardRef((props, ref) => {
                         photo={photo}
                         width={300}
                         key={photo.hash_key.S}
-                        style={{marginBottom: "5px"}}
                     />)
         }
     </Drawer>

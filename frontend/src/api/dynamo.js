@@ -11,18 +11,19 @@ const dynamoClient = new DynamoDBClient({
     }
 });
 
-export function useAllPhotos(options = {}) {
+export function useAllPhotos(limit = null, options = {}) {
     const command = new QueryCommand({
         TableName: config.DYNAMO_TABLE,
+        Limit: limit,
         IndexName: "inverted",
         KeyConditionExpression: "range_key = :image",
         ExpressionAttributeValues: {
             ":image": { "S": "image" }
-        }
+        },
     })
 
     return useQuery(
-        ["all-photos"],
+        ["all-photos", limit],
         () => dynamoClient.send(command),
         {
             ...options,
@@ -31,19 +32,20 @@ export function useAllPhotos(options = {}) {
     )
 }
 
-export function useLocatedPhotos(hash, options = {}) {
+export function useLocatedPhotos(hash, { limit = null, options = {} } = {}) {
     const command = new QueryCommand({
         TableName: config.DYNAMO_TABLE,
+        Limit: limit,
         IndexName: "geohash",
         KeyConditionExpression: "range_key = :image AND begins_with(geohash, :hash)",
         ExpressionAttributeValues: {
             ":image": { "S": "image" },
             ":hash": { "S": hash }
-        }
+        },
     })
 
     return useQuery(
-        ["located-photos", hash],
+        ["located-photos", hash, limit],
         () => dynamoClient.send(command),
         {
             select: data => data.Items,
@@ -52,10 +54,11 @@ export function useLocatedPhotos(hash, options = {}) {
     )
 }
 
-export function useLocatedPhotoslList(hashes, options = {}) {
+export function useLocatedPhotoslList(hashes, { limit = null, options = {} } = {}) {
     const queries = hashes.map(hash => {
         const command = new QueryCommand({
             TableName: config.DYNAMO_TABLE,
+            Limit: limit,
             IndexName: "geohash",
             KeyConditionExpression: "range_key = :image AND begins_with(geohash, :hash)",
             ExpressionAttributeValues: {
@@ -65,7 +68,7 @@ export function useLocatedPhotoslList(hashes, options = {}) {
         })
 
         return {
-            queryKey: ["located-photos", hash],
+            queryKey: ["located-photos", hash, limit],
             queryFn: () => dynamoClient.send(command),
             select: data => data.Items,
             staleTime: 500 * 1000,
