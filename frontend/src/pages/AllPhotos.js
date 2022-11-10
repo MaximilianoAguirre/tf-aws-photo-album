@@ -1,19 +1,38 @@
-import React from "react"
-import { Col, Row } from 'antd'
+import React, { useCallback } from "react"
+import { Col, Row, Spin } from 'antd'
 import { useSearchParams } from 'react-router-dom'
 
-import { useAllPhotos } from "api/dynamo"
+import { useAllPhotosInfinite } from "api/dynamo"
 import { CustomImage } from "components/Image"
 
 
 export const AllPhotos = () => {
-    const { data: photos, isLoading } = useAllPhotos()
+    const { data, isLoading, fetchNextPage, isFetchingNextPage } = useAllPhotosInfinite()
     const [searchParams] = useSearchParams()
+
+    // Process all pages returned by DynamoDB and create a single list of photos
+    const photos = data?.pages.reduce((acc, curr) => {
+        return acc.concat(curr.Items)
+    }, [])
+
+    // useCallback required cause the ref is null in the first render
+    // https://reactjs.org/docs/hooks-faq.html#how-can-i-measure-a-dom-node
+    const scrollRef = useCallback(node => {
+        if (node !== null) {
+            const observer = new IntersectionObserver(([target]) => {
+                if (target.isIntersecting) {
+                    fetchNextPage()
+                }
+            })
+
+            observer.observe(node)
+        }
+    }, [])
 
     const hash = searchParams.get("hash")
 
     return isLoading ?
-        "Loading..."
+        <Spin />
         :
         <Row
             justify="center"
@@ -31,5 +50,14 @@ export const AllPhotos = () => {
                     />
                 </Col>)
             }
+            {
+                isFetchingNextPage && <Col
+                    span={24}
+                >
+                    <Spin />
+                </Col>
+            }
+            {/* Div to watch for scroll */}
+            <div ref={scrollRef} />
         </Row>
 }

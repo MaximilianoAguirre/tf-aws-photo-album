@@ -1,4 +1,4 @@
-import { useQueries, useQuery } from "react-query"
+import { useQueries, useQuery, useInfiniteQuery } from "react-query"
 import { DynamoDBClient, QueryCommand } from "@aws-sdk/client-dynamodb";
 
 import { config } from "config/config"
@@ -29,6 +29,35 @@ export function useAllPhotos(limit = null, options = {}) {
         {
             ...options,
             select: data => data.Items
+        }
+    )
+}
+
+export function useAllPhotosInfinite(limit = 20, options = {}) {
+    return useInfiniteQuery(
+        ["all-photos-infinite", limit],
+        async ({ pageParam = null }) => {
+            const command = new QueryCommand({
+                TableName: config.DYNAMO_TABLE,
+                Limit: limit,
+                ScanIndexForward: false,
+                IndexName: "timestamp",
+                KeyConditionExpression: "range_key = :image",
+                ExpressionAttributeValues: {
+                    ":image": { "S": "image" }
+                },
+                ExclusiveStartKey: pageParam
+            })
+
+
+            // console.log(command)
+            const response = await dynamoClient.send(command)
+            return response
+        },
+        {
+            ...options,
+            // select: data => data.Items,
+            getNextPageParam: (lastPage, pages) => lastPage.LastEvaluatedKey
         }
     )
 }

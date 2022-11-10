@@ -20,11 +20,6 @@ export const Map = () => {
     const resultsTotal = useLocatedPhotoslList(hashesBig)
     const drawer = useRef()
 
-    // console.group("hash info")
-    // console.log(`Number of hashes to query: ${hashesBig.length}`)
-    // console.log(`Number of hashes to process: ${hashesSmall.length}`)
-    // console.groupEnd()
-
     const allPhotos = resultsTotal.reduce((acc, curr) => acc.concat(curr.data || []), [])
     const markersAux = allPhotos.reduce((acc, curr) => {
         const hash = hashesSmall.find(hash => curr.geohash.S.startsWith(hash))

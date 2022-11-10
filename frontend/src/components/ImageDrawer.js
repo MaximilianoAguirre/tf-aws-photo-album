@@ -1,5 +1,5 @@
 import React, { useState, forwardRef, useImperativeHandle } from "react"
-import { Drawer } from 'antd'
+import { Drawer, Spin } from 'antd'
 
 import { CustomImage } from "components/Image"
 import { useLocatedPhotos } from "api/dynamo"
@@ -25,7 +25,7 @@ export const ImageDrawer = forwardRef((props, ref) => {
     return <Drawer title={`Images for hash: ${hash}`} placement="right" onClose={onClose} open={open}>
         {
             isLoading ?
-                "Loading..."
+                <Spin />
                 :
                 data?.map(photo =>
                     <CustomImage
