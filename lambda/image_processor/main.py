@@ -7,6 +7,7 @@ import pygeohash as pgh
 from PIL import Image as pil_image
 from exif import Image as exif_image
 from pathlib import Path
+from datetime import datetime
 
 PHOTO_TABLE = os.environ.get("photo_table")
 PHOTO_BUCKET = os.environ.get("photo_bucket")
@@ -26,20 +27,24 @@ def create_dynamo_item(key):
     )
 
 
-def set_image_size(image, key):
+def set_image_size_and_date(image, key):
     # Get size
     pillow_image = pil_image.open(image)
     width, height = pillow_image.size
+    img_date = pillow_image._getexif()[36867]
+    img_timestamp = datetime.strptime(img_date, "%Y:%m:%d %H:%M:%S").strftime("%s")
 
     # Update dynamoDB item
     dynamo_client.update_item(
         TableName=PHOTO_TABLE,
         Key={"hash_key": {"S": key}, "range_key": {"S": "image"}},
-        UpdateExpression=f"SET width = :width, height = :height",
+        UpdateExpression=f"SET width = :width, height = :height, #timestamp = :timestamp",
         ExpressionAttributeValues={
             ":width": {"N": str(width)},
             ":height": {"N": str(height)},
+            ":timestamp": {"N": str(img_timestamp)},
         },
+        ExpressionAttributeNames={"#timestamp": "timestamp"},
     )
 
     return width, height
@@ -160,7 +165,7 @@ def lambda_handler(event, context):
     s3_client.download_file(bucket, key, tmp_image)
 
     # Set image size
-    set_image_size(tmp_image, key)
+    set_image_size_and_date(tmp_image, key)
 
     # Set image blurhash
     set_blurhash(tmp_image, key)
