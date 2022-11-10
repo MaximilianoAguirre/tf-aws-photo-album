@@ -3,6 +3,7 @@ import { Image } from 'antd'
 import { Blurhash } from "react-blurhash"
 
 import { useScaledPhotoURL, useOriginalPhotoURL } from "api/s3"
+import { fallback_image } from "util/fallback_image"
 
 export const CustomImage = ({ photo, width, style }) => {
     const { data: photoUrl } = useScaledPhotoURL(photo.hash_key.S, width, { enabled: photo.resized?.BOOL })
@@ -17,6 +18,7 @@ export const CustomImage = ({ photo, width, style }) => {
         src={src}
         preview={false}
         style={style}
+        fallback={fallback_image}
         placeholder={"blurhash" in photo &&
             <Blurhash
                 hash={photo.blurhash.S}
