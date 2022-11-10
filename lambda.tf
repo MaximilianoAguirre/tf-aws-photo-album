@@ -59,15 +59,6 @@ module "image_processor" {
   }
 }
 
-resource "aws_s3_bucket_notification" "image_processor_trigger" {
-  bucket = module.photo_bucket.s3_bucket_id
-
-  lambda_function {
-    lambda_function_arn = module.image_processor.lambda_function_arn
-    events              = ["s3:ObjectCreated:*"]
-  }
-}
-
 ########################################################
 # IMAGE DELETION
 ########################################################
@@ -114,8 +105,16 @@ module "image_deletion" {
   }
 }
 
-resource "aws_s3_bucket_notification" "image_deletion_trigger" {
+########################################################
+# LAMBDA TRIGGERS
+########################################################
+resource "aws_s3_bucket_notification" "lambda_s3_triggers" {
   bucket = module.photo_bucket.s3_bucket_id
+
+  lambda_function {
+    lambda_function_arn = module.image_processor.lambda_function_arn
+    events              = ["s3:ObjectCreated:*"]
+  }
 
   lambda_function {
     lambda_function_arn = module.image_deletion.lambda_function_arn
