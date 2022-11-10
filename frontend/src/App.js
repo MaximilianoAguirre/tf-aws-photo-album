@@ -12,9 +12,8 @@ export const App = () => {
         <Route path="/" element={<Main />}>
           <Route path="photos" element={<AllPhotos />} />
           <Route path="map" element={<Map />} />
-          <Route path="*" element={<Navigate to="/photos" />} />
+          <Route index element={<Navigate to="/photos" />} />
         </Route>
-        <Route path="*" element={<Navigate to="/photos" />} />
       </Routes>
     </Router>
   )
