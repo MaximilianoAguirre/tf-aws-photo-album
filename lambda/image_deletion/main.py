@@ -20,12 +20,11 @@ def delete_dynamo_item(key):
         Key={"hash_key": {"S": key}, "range_key": {"S": "image"}},
     )
 
+
 def delete_resized_images(key):
     for width in RESIZE_WIDTHS:
-        s3_client.delete_object(
-            Bucket=PHOTO_ASSETS_BUCKET,
-            Key=f"{width}/{key}"
-        )
+        s3_client.delete_object(Bucket=PHOTO_ASSETS_BUCKET, Key=f"{width}/{key}")
+
 
 def lambda_handler(event, context):
     print(event)
