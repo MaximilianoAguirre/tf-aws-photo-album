@@ -15,7 +15,8 @@ export function useAllPhotos(limit = null, options = {}) {
     const command = new QueryCommand({
         TableName: config.DYNAMO_TABLE,
         Limit: limit,
-        IndexName: "inverted",
+        ScanIndexForward: false,
+        IndexName: "timestamp",
         KeyConditionExpression: "range_key = :image",
         ExpressionAttributeValues: {
             ":image": { "S": "image" }

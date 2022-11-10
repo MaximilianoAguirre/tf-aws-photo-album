@@ -24,6 +24,13 @@ resource "aws_dynamodb_table" "photo_tracker" {
     projection_type = "ALL"
   }
 
+  global_secondary_index {
+    name            = "timestamp"
+    hash_key        = "range_key"
+    range_key       = "timestamp"
+    projection_type = "ALL"
+  }
+
   attribute {
     name = "hash_key"
     type = "S"
@@ -37,6 +44,11 @@ resource "aws_dynamodb_table" "photo_tracker" {
   attribute {
     name = "geohash"
     type = "S"
+  }
+
+  attribute {
+    name = "timestamp"
+    type = "N"
   }
 
   server_side_encryption {
