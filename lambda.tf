@@ -67,3 +67,58 @@ resource "aws_s3_bucket_notification" "image_processor_trigger" {
     events              = ["s3:ObjectCreated:*"]
   }
 }
+
+########################################################
+# IMAGE DELETION
+########################################################
+module "image_deletion" {
+  source  = "terraform-aws-modules/lambda/aws"
+  version = "4.2.0"
+
+  function_name            = "${local.dash_prefix}image-deletion"
+  description              = "Lambda to process objects deleted from photo bucket"
+  handler                  = "main.lambda_handler"
+  runtime                  = "python3.8"
+  source_path              = "${path.module}/lambda/image_deletion"
+  artifacts_dir            = "${path.module}/builds"
+  publish                  = true
+  recreate_missing_package = false
+  attach_policy_statements = true
+  timeout                  = 120
+
+  allowed_triggers = {
+    BucketTrigger = {
+      principal  = "s3.amazonaws.com"
+      source_arn = module.photo_bucket.s3_bucket_arn
+    }
+  }
+
+  policy_statements = {
+    s3_delete = {
+      effect    = "Allow"
+      actions   = ["s3:DeleteObject"]
+      resources = ["${module.photo_assets_bucket.s3_bucket_arn}/*"]
+    }
+
+    dynamodb = {
+      effect    = "Allow"
+      actions   = ["dynamodb:DeleteItem"]
+      resources = [aws_dynamodb_table.photo_tracker.arn]
+    }
+  }
+
+  environment_variables = {
+    photo_table         = aws_dynamodb_table.photo_tracker.id
+    photo_bucket        = module.photo_bucket.s3_bucket_id
+    photo_assets_bucket = module.photo_assets_bucket.s3_bucket_id
+  }
+}
+
+resource "aws_s3_bucket_notification" "image_deletion_trigger" {
+  bucket = module.photo_bucket.s3_bucket_id
+
+  lambda_function {
+    lambda_function_arn = module.image_deletion.lambda_function_arn
+    events              = ["s3:ObjectRemoved:*"]
+  }
+}
