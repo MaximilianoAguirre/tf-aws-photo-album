@@ -4,7 +4,7 @@ import os
 import urllib.parse
 import pygeohash as pgh
 
-from PIL import Image as pil_image
+from PIL import Image as pil_image, ImageOps
 from exif import Image as exif_image
 from pathlib import Path
 from datetime import datetime
@@ -13,7 +13,7 @@ PHOTO_TABLE = os.environ.get("photo_table")
 PHOTO_BUCKET = os.environ.get("photo_bucket")
 PHOTO_ASSETS_BUCKET = os.environ.get("photo_assets_bucket")
 TMP_DIR = "/tmp"
-RESIZE_WIDTHS = [300, 768, 1280]
+RESIZE_WIDTHS = [100, 300, 768, 1280]
 
 s3_resource = boto3.resource("s3")
 s3_client = boto3.client("s3")
@@ -28,11 +28,14 @@ def create_dynamo_item(key):
 
 
 def set_image_size_and_date(image, key):
-    # Get size
-    pillow_image = pil_image.open(image)
-    width, height = pillow_image.size
-    img_date = pillow_image._getexif()[36867]
+    # Get date
+    img = pil_image.open(image)
+    img_date = img._getexif()[36867]
     img_timestamp = datetime.strptime(img_date, "%Y:%m:%d %H:%M:%S").strftime("%s")
+
+    # Get size
+    img = ImageOps.exif_transpose(img)
+    width, height = img.size
 
     # Update dynamoDB item
     dynamo_client.update_item(
@@ -51,14 +54,15 @@ def set_image_size_and_date(image, key):
 
 
 def create_resized_images(image, key, content_type):
-    pillow_image = pil_image.open(image)
-    width, height = pillow_image.size
+    img = pil_image.open(image)
+    img = ImageOps.exif_transpose(img)
+    width, height = img.size
 
     new_widths = [size for size in RESIZE_WIDTHS if size < width]
 
     for new_width in new_widths:
         new_height = round((new_width / width) * height)
-        resized_img = pillow_image.resize((new_width, new_height), pil_image.ANTIALIAS)
+        resized_img = img.resize((new_width, new_height), pil_image.ANTIALIAS)
         Path(f"{TMP_DIR}/{new_width}").mkdir(parents=True, exist_ok=True)
         resized_img.save(f"{TMP_DIR}/{new_width}/{key}", quality=95, optimize=True)
 
