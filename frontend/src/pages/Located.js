@@ -49,9 +49,7 @@ export const Located = () => {
                 </Col>)
             }
             {
-                isFetchingNextPage && <Col
-                    span={24}
-                >
+                isFetchingNextPage && <Col span={24} >
                     <Spin />
                 </Col>
             }
