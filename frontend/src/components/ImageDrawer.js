@@ -1,5 +1,5 @@
 import React, { useState, forwardRef, useImperativeHandle } from "react"
-import { Drawer, Spin, Button } from 'antd'
+import { Drawer, Spin, Button, Row, Col } from 'antd'
 import { useNavigate } from "react-router-dom"
 
 import { CustomImage } from "components/Image"
@@ -34,12 +34,22 @@ export const ImageDrawer = forwardRef((props, ref) => {
             isLoading ?
                 <Spin />
                 :
-                data?.map(photo =>
-                    <CustomImage
-                        photo={photo}
-                        width={300}
-                        key={photo.hash_key.S}
-                    />)
+                <Row
+                    gutter={[5, 5]}
+                    justify="center"
+                    align="middle"
+                >
+                    {
+                        data?.map(photo => <Col
+                            key={photo.hash_key.S}
+                        >
+                            <CustomImage
+                                photo={photo}
+                                width={300}
+                            />
+                        </Col>)
+                    }
+                </Row>
         }
     </Drawer>
 })
