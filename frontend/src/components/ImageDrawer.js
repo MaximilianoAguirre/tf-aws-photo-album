@@ -1,5 +1,6 @@
 import React, { useState, forwardRef, useImperativeHandle } from "react"
-import { Drawer, Spin } from 'antd'
+import { Drawer, Spin, Button } from 'antd'
+import { useNavigate } from "react-router-dom"
 
 import { CustomImage } from "components/Image"
 import { useLocatedPhotos } from "api/dynamo"
@@ -8,6 +9,7 @@ export const ImageDrawer = forwardRef((props, ref) => {
     const [open, setOpen] = useState(false)
     const [hash, setHash] = useState(null)
     const { data, isLoading } = useLocatedPhotos(hash, { limit: 5, options: { enabled: Boolean(hash) } })
+    const navigate = useNavigate()
 
     useImperativeHandle(ref, () => ({
         open() {
@@ -22,7 +24,12 @@ export const ImageDrawer = forwardRef((props, ref) => {
         setOpen(false);
     };
 
-    return <Drawer title={`Images for hash: ${hash}`} placement="right" onClose={onClose} open={open}>
+    return <Drawer
+        title={<Button onClick={() => navigate(`/located/${hash}`)}>See all</Button>}
+        placement="right"
+        onClose={onClose}
+        open={open}
+    >
         {
             isLoading ?
                 <Spin />

@@ -1,12 +1,14 @@
 import React, { useCallback } from "react"
 import { Col, Row, Spin } from 'antd'
+import { useParams } from "react-router-dom"
 
-import { useAllPhotosInfinite } from "api/dynamo"
+import { useLocatedPhotosInfinite } from "api/dynamo"
 import { CustomImage } from "components/Image"
 
 
-export const AllPhotos = () => {
-    const { data, isLoading, fetchNextPage, isFetchingNextPage } = useAllPhotosInfinite()
+export const Located = () => {
+    let { geohash } = useParams()
+    const { data, isLoading, fetchNextPage, isFetchingNextPage } = useLocatedPhotosInfinite(geohash)
 
     // Process all pages returned by DynamoDB and create a single list of photos
     const photos = data?.pages.reduce((acc, curr) => {
@@ -47,7 +49,9 @@ export const AllPhotos = () => {
                 </Col>)
             }
             {
-                isFetchingNextPage && <Col span={24} >
+                isFetchingNextPage && <Col
+                    span={24}
+                >
                     <Spin />
                 </Col>
             }

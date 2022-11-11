@@ -84,6 +84,34 @@ export function useLocatedPhotos(hash, { limit = null, options = {} } = {}) {
     )
 }
 
+export function useLocatedPhotosInfinite(hash, { limit = 20, options = {} } = {}) {
+    return useInfiniteQuery(
+        ["located-photos-infinite", hash, limit],
+        async ({ pageParam = null }) => {
+            const command = new QueryCommand({
+                TableName: config.DYNAMO_TABLE,
+                Limit: limit,
+                IndexName: "geohash",
+                KeyConditionExpression: "range_key = :image AND begins_with(geohash, :hash)",
+                ExpressionAttributeValues: {
+                    ":image": { "S": "image" },
+                    ":hash": { "S": hash }
+                },
+                ExclusiveStartKey: pageParam
+            })
+
+
+            // console.log(command)
+            const response = await dynamoClient.send(command)
+            return response
+        },
+        {
+            ...options,
+            getNextPageParam: (lastPage, pages) => lastPage.LastEvaluatedKey
+        }
+    )
+}
+
 export function useLocatedPhotoslList(hashes, { limit = null, options = {} } = {}) {
     const queries = hashes.map(hash => {
         const command = new QueryCommand({
