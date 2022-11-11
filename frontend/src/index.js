@@ -9,7 +9,8 @@ import { queryClient } from "config/react_query"
 
 import 'antd/dist/antd.dark.css'
 import 'leaflet/dist/leaflet.css'
-import "styles/custom_scrollbar.css";
+import "styles/custom_scrollbar.css"
+import "leaflet-loading/src/Control.Loading.css"
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

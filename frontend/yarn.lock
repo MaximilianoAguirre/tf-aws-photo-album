@@ -7165,6 +7165,11 @@ language-tags@^1.0.5:
   dependencies:
     language-subtag-registry "~0.3.2"
 
+leaflet-loading@^0.1.24:
+  version "0.1.24"
+  resolved "https://registry.yarnpkg.com/leaflet-loading/-/leaflet-loading-0.1.24.tgz#eafdfc188718eb13d3cf7b9226c4c06b16e92919"
+  integrity sha512-svOFGs01hbjJpRVY6L6HpaQeLuHIFOmXtGARg3cUzH/lYu2xpRtkYScmDgsQa4vUw4qKS0XvZck0u1E/rRliQQ==
+
 leaflet@^1.9.2:
   version "1.9.2"
   resolved "https://registry.yarnpkg.com/leaflet/-/leaflet-1.9.2.tgz#168b6c6ef1d4d1e8409bde2c4ad050c249c4dbe6"

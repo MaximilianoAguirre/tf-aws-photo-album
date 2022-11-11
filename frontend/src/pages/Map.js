@@ -1,6 +1,7 @@
-import React, { useState, useRef } from "react"
+import React, { useState, useRef, useEffect } from "react"
 import { MapContainer, TileLayer, Marker } from 'react-leaflet'
 import Leaflet from 'leaflet'
+import 'leaflet-loading'
 
 import { useLocatedPhotoslList } from "api/dynamo"
 import { geohash } from "util/geohash"
@@ -19,8 +20,10 @@ export const Map = () => {
     const [hashesSmall, setHashesSmall] = useState([])
     const resultsTotal = useLocatedPhotoslList(hashesBig)
     const drawer = useRef()
+    const [map, setMap] = useState(null)
 
     const allPhotos = resultsTotal.reduce((acc, curr) => acc.concat(curr.data || []), [])
+    const loading = resultsTotal.reduce((acc, curr) => curr.isLoading ? true : acc, false)
     const markersAux = allPhotos.reduce((acc, curr) => {
         const hash = hashesSmall.find(hash => curr.geohash.S.startsWith(hash))
 
@@ -41,13 +44,26 @@ export const Map = () => {
         }
     })
 
+    useEffect(() => {
+        if (map) {
+            if (loading) {
+                map.fire("dataloading")
+            }
+            else {
+                map.fire("dataload")
+            }
+        }
+    }, [loading])
+
     return <>
         <MapContainer
             center={[-41.1627, -71.4826]}
             zoom={6}
             minZoom={4}
             scrollWheelZoom={true}
+            loadingControl={true}
             style={{ height: "300px", minHeight: "calc(100vh - 134px)" }}
+            ref={setMap}
             whenReady={(e) => {
                 const map = e.target
 

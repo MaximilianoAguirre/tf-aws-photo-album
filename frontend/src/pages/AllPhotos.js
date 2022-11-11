@@ -1,6 +1,5 @@
 import React, { useCallback } from "react"
 import { Col, Row, Spin } from 'antd'
-import { useSearchParams } from 'react-router-dom'
 
 import { useAllPhotosInfinite } from "api/dynamo"
 import { CustomImage } from "components/Image"
@@ -8,7 +7,6 @@ import { CustomImage } from "components/Image"
 
 export const AllPhotos = () => {
     const { data, isLoading, fetchNextPage, isFetchingNextPage } = useAllPhotosInfinite()
-    const [searchParams] = useSearchParams()
 
     // Process all pages returned by DynamoDB and create a single list of photos
     const photos = data?.pages.reduce((acc, curr) => {
@@ -28,8 +26,6 @@ export const AllPhotos = () => {
             observer.observe(node)
         }
     }, [])
-
-    const hash = searchParams.get("hash")
 
     return isLoading ?
         <Spin />
