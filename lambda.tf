@@ -21,8 +21,9 @@ module "image_processor" {
   layers                   = [aws_lambda_layer_version.python38_image_processor.arn]
   publish                  = true
   recreate_missing_package = false
+  ignore_source_code_hash  = true
   attach_policy_statements = true
-  timeout                  = 120
+  timeout                  = 900 // Max timeout to process images
   memory_size              = 1024
 
   allowed_triggers = {
@@ -74,6 +75,7 @@ module "image_deletion" {
   artifacts_dir            = "${path.module}/builds"
   publish                  = true
   recreate_missing_package = false
+  ignore_source_code_hash  = true
   attach_policy_statements = true
   timeout                  = 120
 
