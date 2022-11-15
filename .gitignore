@@ -35,3 +35,4 @@ builds/
 
 # Ignore files created to deploy module directly
 provider.tf
+*.tfvars

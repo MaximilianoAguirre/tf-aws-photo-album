@@ -1,0 +1,23 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "DynamoDB",
+            "Effect": "Allow",
+            "Action": "dynamodb:Query",
+            "Resource": [
+                "${dynamodb_table}/index/*",
+                "${dynamodb_table}"
+            ]
+        },
+        {
+            "Sid": "S3",
+            "Effect": "Allow",
+            "Action": "s3:GetObject",
+            "Resource": [
+                "${photo_bucket}/*",
+                "${photo_assets_bucket}/*"
+            ]
+        }
+    ]
+}

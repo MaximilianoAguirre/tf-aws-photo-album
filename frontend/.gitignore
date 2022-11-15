@@ -8,8 +8,9 @@
 # testing
 /coverage
 
-# production
-/build
+# config files
+public/config.js
+build/config.js
 
 # misc
 .DS_Store
