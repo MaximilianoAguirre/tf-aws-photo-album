@@ -9,7 +9,7 @@ const { useBreakpoint } = Grid
 
 const titles = {
     "/login": "Login",
-    "/login/new-password": "New password"
+    "/login/set-password": "Set password"
 }
 
 export const LoginLayout = () => {

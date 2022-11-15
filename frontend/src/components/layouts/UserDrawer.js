@@ -38,6 +38,7 @@ export const UserDrawer = ({ opened, close }) => {
             title="Change my password"
             okText="Change it"
             open={changePwdModal}
+            maskClosable={!isChangingPassword}
             onCancel={() => {
                 form.resetFields()
                 setChangePwdModal(false)
