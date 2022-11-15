@@ -15,8 +15,6 @@ export const PublicRoute = ({children}) => {
     return children
   }
   else {
-    return <Navigate
-      to="/photos"
-    />
+    return <Navigate to="/photos" />
   }
 }

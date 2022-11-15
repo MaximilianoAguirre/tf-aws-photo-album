@@ -3,33 +3,29 @@ import { Form, Input, Button } from "antd"
 import { CheckCircleOutlined } from "@ant-design/icons"
 import { Navigate } from "react-router-dom"
 
-import { useAuth } from "context/auth"
+import { useAuth, CHALLENGES } from "context/auth"
 
 
 export const SetPassword = () => {
-    const { user, isAuthenticating, setPassword } = useAuth()
+    const { isChallenged, challenge, challengePayload, isAuthenticating, setPassword } = useAuth()
 
-    if (!user) return <Navigate to="/login" />
+    if (!isChallenged || challenge !== CHALLENGES.SET_PASSWORD) return <Navigate to="/login" />
 
     return <Form
         name="new-password"
         requiredMark={false}
+        onFinish={(values) => setPassword(values)}
         validateMessages={{
             required: "${label} required"
-        }}
-        onFinish={(values) => {
-            console.log(values)
-            setPassword(values)
         }}
     >
         <Form.Item
             label="User"
             name="username"
-            initialValue={user.challengeParam.userAttributes.email}
+            initialValue={challengePayload.challengeParam.userAttributes.email}
             rules={[
                 { required: true }
             ]}
-
         >
             <Input disabled autoComplete="off" />
         </Form.Item>
@@ -90,4 +86,3 @@ export const SetPassword = () => {
         </div>
     </Form>
 }
-

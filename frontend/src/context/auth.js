@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from "react"
-import Amplify, { Auth, Hub } from "aws-amplify"
+import React, { createContext, useContext, useEffect, useReducer } from "react"
+import { Auth, Hub, Amplify } from "aws-amplify"
 import { useNavigate } from "react-router-dom"
 import { message } from "antd"
 
@@ -13,63 +13,167 @@ export function useAuth() {
     return useContext(AuthContext);
 }
 
-export function AuthProvider({ children }) {
-    const navigate = useNavigate()
-    const [user, setUser] = useState(null);
-    const [userId, setUserId] = useState(null);
-    const [isAuthenticating, setIsAuthenticating] = useState(false);
-    const [isLoggingOut, setIsLoggingOut] = useState(false);
+const ACTIONS = {
+    LOGIN: 'login',
+    LOGIN_ERROR: 'login_error',
+    LOGOUT: 'logout',
+    CHALLENGE: 'challenge',
+    START_LOGIN: 'start_login',
+    START_LOGOUT: 'start_logout',
+    START_CHANGE_PWD: 'start_change_pwd',
+    CHANGE_PWD_FINISH: 'change_pwd_finish'
+}
 
-    // isAuthenticated
-    const isAuthenticated = !!user;
+export const CHALLENGES = {
+    SET_PASSWORD: 'NEW_PASSWORD_REQUIRED'
+}
+
+var INITIAL_STATE = {
+    isAuthenticated: false,
+    isAuthenticating: false,
+    isLoggingOut: false,
+    user: null,
+    userId: null,
+    isChallenged: false,
+    challengePayload: null,
+    challenge: null,
+    isChangingPassword: false
+}
+
+function reducer(state, action) {
+    switch (action.type) {
+
+        case ACTIONS.LOGIN:
+            return {
+                ...state,
+                isAuthenticated: true,
+                isAuthenticating: false,
+                user: action.payload,
+                userId: action.payload.attributes.email,
+                isChallenged: false,
+                challengePayload: null,
+                challenge: null,
+            }
+
+        case ACTIONS.LOGOUT:
+            return {
+                ...state,
+                isAuthenticated: false,
+                isLoggingOut: false,
+                user: null,
+                userId: null,
+                isChallenged: false,
+                challengePayload: null,
+                challenge: null,
+            }
+
+        case ACTIONS.CHALLENGE:
+            return {
+                ...state,
+                isAuthenticating: false,
+                isChallenged: true,
+                challengePayload: action.payload,
+                challenge: action.payload.challengeName,
+            }
+
+        case ACTIONS.START_LOGIN:
+            return {
+                ...state,
+                isAuthenticating: true,
+            }
+
+        case ACTIONS.LOGIN_ERROR:
+            return {
+                ...state,
+                isAuthenticating: false,
+            }
+
+        case ACTIONS.START_LOGOUT:
+            return {
+                ...state,
+                isLoggingOut: true,
+            }
+
+        case ACTIONS.START_CHANGE_PWD:
+            return {
+                ...state,
+                isChangingPassword: true
+            }
+
+        case ACTIONS.CHANGE_PWD_FINISH:
+            return {
+                ...state,
+                isChangingPassword: false
+            }
+
+        default:
+            return state
+    }
+}
+
+export function AuthProvider({ children }) {
+    const [state, dispatch] = useReducer(reducer, INITIAL_STATE)
+    const navigate = useNavigate()
 
     const login = ({ username, password }) => {
-        setIsAuthenticating(true)
+        dispatch({ type: ACTIONS.START_LOGIN })
 
         Auth.signIn(username, password)
             .then(user => {
                 if (user.challengeName) {
                     switch (user.challengeName) {
-                        case "NEW_PASSWORD_REQUIRED":
+                        case CHALLENGES.SET_PASSWORD:
                             message.error("Password reset required")
-                            setIsAuthenticating(false)
-                            setUser(user)
-                            navigate('/login/new-password')
+                            dispatch({ type: ACTIONS.CHALLENGE, payload: user })
+                            navigate('/login/set-password')
                             break
 
                         default:
                             break
                     }
                 }
+                else {
+                    dispatch({ type: ACTIONS.LOGIN, payload: user })
+                }
             })
+            .catch(() => dispatch({ type: ACTIONS.LOGIN_ERROR }))
     }
 
     const setPassword = ({ newPassword }) => {
-        setIsAuthenticating(true)
+        dispatch({ type: ACTIONS.START_LOGIN })
 
-        Auth.completeNewPassword(user, newPassword)
-            .then(user => {
-                setIsAuthenticating(false)
-                getUser().then(userData => {
-                    setUser(userData)
-                    setUserId(getUserId(userData))
-                })
+        Auth.completeNewPassword(state.challengePayload, newPassword)
+            .then(() => {
+                Auth.currentAuthenticatedUser()
+                    .then(user => {
+                        if (user) dispatch({ type: ACTIONS.LOGIN, payload: user })
+                    })
+                    .catch(() => console.log('Not signed in'));
             })
             .catch(error => {
-                console.log(error)
                 message.error(error.message)
-                setIsAuthenticating(false)
+                dispatch({ type: ACTIONS.LOGOUT })
             })
     }
 
     const logout = () => {
-        setIsLoggingOut(true);
-        Auth.signOut();
+        dispatch({ type: ACTIONS.START_LOGOUT })
+
+        Auth.signOut()
+            .then(() => dispatch({ type: ACTIONS.LOGOUT }))
     }
 
-    const getUserId = (user) => {
-        let userId = user?.attributes?.email
-        return userId?.split("@")[0];
+    const changePassword = ({ old_password, new_password, callback }) => {
+        dispatch({ type: ACTIONS.START_CHANGE_PWD })
+        Auth.changePassword(state.user, old_password, new_password)
+            .then(() => {
+                message.success("Password changed successfully!")
+                if (callback) callback()
+            })
+            .catch(err => {
+                message.error(err.message)
+            })
+            .finally(() => dispatch({ type: ACTIONS.CHANGE_PWD_FINISH }))
     }
 
     useEffect(() => {
@@ -77,32 +181,18 @@ export function AuthProvider({ children }) {
             switch (event) {
                 case 'signIn':
                 case 'cognitoHostedUI':
-                    setIsAuthenticating(false)
-                    console.log("Logged in")
-                    getUser().then(userData => {
-                        setUser(userData)
-                        setUserId(getUserId(userData))
-                    })
                     break
 
                 case 'signOut':
-                    setIsAuthenticating(false)
-                    setUser(null)
-                    setUserId(null)
-                    setIsLoggingOut(false)
                     break
 
                 case 'tokenRefresh_failure':
-                    setIsAuthenticating(false)
-                    setUser(null)
-                    setUserId(null)
-                    setIsLoggingOut(false)
+                    dispatch({ type: ACTIONS.LOGOUT })
                     console.log('Token refresh failed')
                     break
 
                 case 'signIn_failure':
                 case 'cognitoHostedUI_failure':
-                    setIsAuthenticating(false)
                     message.error(data.message)
                     break
 
@@ -115,30 +205,21 @@ export function AuthProvider({ children }) {
             }
         });
 
-        getUser().then(userData => {
-            if (userData) {
-                setUser(userData)
-                setUserId(getUserId(userData))
-            }
-        });
-    }, []);
-
-    function getUser() {
-        return Auth.currentAuthenticatedUser()
-            .then(userData => userData)
+        Auth.currentAuthenticatedUser()
+            .then(user => {
+                if (user) dispatch({ type: ACTIONS.LOGIN, payload: user })
+            })
             .catch(() => console.log('Not signed in'));
-    }
+
+    }, []);
 
     return <AuthContext.Provider
         value={{
-            isAuthenticated,
-            isAuthenticating,
-            isLoggingOut,
-            user,
-            userId,
+            ...state,
             login,
             logout,
-            setPassword
+            setPassword,
+            changePassword
         }}
     >
         {children}

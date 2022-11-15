@@ -1,6 +1,6 @@
 import React from "react"
 import { Form, Input, Button } from "antd"
-import { CheckCircleOutlined } from "@ant-design/icons"
+import { LoginOutlined } from "@ant-design/icons"
 
 import { useAuth } from "context/auth"
 
@@ -11,10 +11,10 @@ export const Login = () => {
     return <Form
         name="login"
         requiredMark={false}
+        onFinish={(values) => login(values)}
         validateMessages={{
             required: "${label} required"
         }}
-        onFinish={(values) => login(values)}
     >
         <Form.Item
             label="User"
@@ -43,7 +43,7 @@ export const Login = () => {
             }}
         >
             <Button
-                icon={<CheckCircleOutlined />}
+                icon={<LoginOutlined />}
                 type="primary"
                 htmlType="submit"
                 loading={isAuthenticating}

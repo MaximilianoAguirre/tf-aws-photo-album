@@ -58,7 +58,7 @@ export const Map = () => {
     return <>
         <MapContainer
             center={[-41.1627, -71.4826]}
-            zoom={6}
+            zoom={4}
             minZoom={4}
             scrollWheelZoom={true}
             loadingControl={true}
