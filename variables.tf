@@ -21,6 +21,11 @@ variable "tags" {
 #########################################################################################
 # COGNITO
 #########################################################################################
+variable "root_user" {
+  type        = string
+  description = "Root user, must be a valid email"
+}
+
 variable "cognito_password_min_length" {
   type        = number
   default     = 10

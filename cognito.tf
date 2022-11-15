@@ -191,3 +191,21 @@ resource "aws_cognito_identity_pool_roles_attachment" "role_attachment" {
     "unauthenticated" = aws_iam_role.unauthenticated.arn
   }
 }
+
+########################################################
+# ROOT USER
+########################################################
+resource "aws_cognito_user" "root" {
+  user_pool_id = aws_cognito_user_pool.pool.id
+  username     = var.root_user
+
+  attributes = {
+    email = var.root_user
+  }
+}
+
+resource "aws_cognito_user_in_group" "root_admin" {
+  user_pool_id = aws_cognito_user_pool.pool.id
+  group_name   = aws_cognito_user_group.admin.name
+  username     = aws_cognito_user.root.username
+}
