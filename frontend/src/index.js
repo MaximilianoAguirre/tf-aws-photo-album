@@ -4,10 +4,16 @@ import reportWebVitals from './reportWebVitals'
 
 import { App } from './App'
 
+// AntD style
 import 'antd/dist/antd.dark.css'
+
+// Leaflet styles
 import 'leaflet/dist/leaflet.css'
-import "styles/custom_scrollbar.css"
 import "leaflet-loading/src/Control.Loading.css"
+
+// Custom styles
+import "styles/custom_scrollbar.css"
+import "styles/antd_modal_fullscreen.css"
 
 const root = ReactDOM.createRoot(document.getElementById('root'))
 root.render(<App />)

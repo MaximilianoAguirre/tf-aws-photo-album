@@ -5,9 +5,6 @@ import { Blurhash } from "react-blurhash"
 import { useOriginalPhotoURL } from "api/s3"
 import { fallback_image } from "util/fallback_image"
 
-import "styles/antd_modal_fullscreen.css"
-
-
 export const ImagePreview = forwardRef(({ photo }, ref) => {
     const [open, setOpen] = useState(false)
     const { data: photoUrl } = useOriginalPhotoURL(photo.hash_key.S)
@@ -22,6 +19,7 @@ export const ImagePreview = forwardRef(({ photo }, ref) => {
         title={photo.hash_key.S}
         open={open}
         onCancel={() => setOpen(false)}
+        wrapClassName="fullscreen-modal"
     >
         <Image
             width={photo.width?.N}
