@@ -1,0 +1,12 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Resources:
+  rekognitionCollection:
+    Type: AWS::Rekognition::Collection
+    Properties: 
+      CollectionId: ${collection_name}
+
+Outputs:
+  collectionArn:
+    Description: Arn of the collection
+    Value: !GetAtt rekognitionCollection.Arn
