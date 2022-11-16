@@ -1,15 +1,18 @@
 import React from "react"
 import { Form, Input, Button } from "antd"
-import { LoginOutlined } from "@ant-design/icons"
+import { LoginOutlined, QuestionCircleOutlined } from "@ant-design/icons"
+import { useNavigate } from "react-router-dom"
 
 import { useAuth } from "context/auth"
 
-
 export const Login = () => {
     const { login, isAuthenticating } = useAuth()
+    const navigate = useNavigate()
+    const [form] = Form.useForm()
 
     return <Form
         name="login"
+        form={form}
         requiredMark={false}
         onFinish={(values) => login(values)}
         validateMessages={{
@@ -20,10 +23,11 @@ export const Login = () => {
             label="User"
             name="username"
             rules={[
-                { required: true }
+                { required: true },
+                { type: "email", message: "Must be a valid email" }
             ]}
         >
-            <Input autoComplete="mail" />
+            <Input autoComplete="email" />
         </Form.Item>
         <Form.Item
             label="Password"
@@ -42,14 +46,23 @@ export const Login = () => {
                 flexDirection: "column"
             }}
         >
-            <Button
-                icon={<LoginOutlined />}
-                type="primary"
-                htmlType="submit"
-                loading={isAuthenticating}
-            >
-                Login
-            </Button>
+            <Button.Group>
+                <Button
+                    icon={<QuestionCircleOutlined />}
+                    disabled={isAuthenticating}
+                    onClick={() => navigate(`/login/forgot-password?username=${form.getFieldValue("username") || ""}`)}
+                >
+                    I forgot my password
+                </Button>
+                <Button
+                    icon={<LoginOutlined />}
+                    type="primary"
+                    htmlType="submit"
+                    loading={isAuthenticating}
+                >
+                    Login
+                </Button>
+            </Button.Group>
         </div>
     </Form>
 }

@@ -25,7 +25,11 @@ const ACTIONS = {
 }
 
 export const CHALLENGES = {
-    SET_PASSWORD: 'NEW_PASSWORD_REQUIRED'
+    SET_PASSWORD: 'NEW_PASSWORD_REQUIRED',
+    CUSTOM_CHALLENGE: 'CUSTOM_CHALLENGE',
+    MFA_SETUP: 'MFA_SETUP',
+    SMS_MFA: 'SMS_MFA',
+    SOFTWARE_TOKEN_MFA: 'SOFTWARE_TOKEN_MFA'
 }
 
 var INITIAL_STATE = {
@@ -168,11 +172,9 @@ export function AuthProvider({ children }) {
         Auth.changePassword(state.user, old_password, new_password)
             .then(() => {
                 message.success("Password changed successfully!")
-                if (callback) callback()
+                callback && callback()
             })
-            .catch(err => {
-                message.error(err.message)
-            })
+            .catch(err => message.error(err.message))
             .finally(() => dispatch({ type: ACTIONS.CHANGE_PWD_FINISH }))
     }
 

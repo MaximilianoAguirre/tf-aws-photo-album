@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { ReactQueryDevtools } from "react-query/devtools"
 
 import { MainLayout, LoginLayout, PrivateRoute, PublicRoute } from "components"
-import { AllPhotos, Located, Map, Login, SetPassword } from "pages"
+import { AllPhotos, Located, Map, Login, SetPassword, ForgotPassword } from "pages"
 import { Providers } from "context/providers_wrapper"
 
 export const App = () => {
@@ -21,6 +21,7 @@ export const App = () => {
           </Route>
 
           <Route path="/login" element={<PublicRoute><LoginLayout /></PublicRoute>} >
+            <Route path="forgot-password" element={<ForgotPassword />} />
             <Route path="set-password" element={<SetPassword />} />
             <Route index element={<Login />} />
           </Route>
