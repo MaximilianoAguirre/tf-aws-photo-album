@@ -12,19 +12,20 @@ module "image_processor" {
   source  = "terraform-aws-modules/lambda/aws"
   version = "4.2.0"
 
-  function_name            = "${local.dash_prefix}image-processor"
-  description              = "Lambda to process new images uploaded to the bucket"
-  handler                  = "main.lambda_handler"
-  runtime                  = "python3.8"
-  source_path              = "${path.module}/lambda/image_processor"
-  artifacts_dir            = "${path.module}/builds"
-  layers                   = [aws_lambda_layer_version.python38_image_processor.arn]
-  publish                  = true
-  recreate_missing_package = false
-  ignore_source_code_hash  = true
-  attach_policy_statements = true
-  timeout                  = 900 // Max timeout to process images
-  memory_size              = 1024
+  function_name                     = "${local.dash_prefix}image-processor"
+  description                       = "Lambda to process new images uploaded to the bucket"
+  handler                           = "main.lambda_handler"
+  runtime                           = "python3.8"
+  source_path                       = "${path.module}/lambda/image_processor"
+  artifacts_dir                     = "${path.module}/builds"
+  layers                            = [aws_lambda_layer_version.python38_image_processor.arn]
+  publish                           = true
+  recreate_missing_package          = false
+  ignore_source_code_hash           = true
+  attach_policy_statements          = true
+  cloudwatch_logs_retention_in_days = 14
+  timeout                           = 900 // Max timeout to process images
+  memory_size                       = 1024
 
   allowed_triggers = {
     BucketTrigger = {
@@ -67,17 +68,18 @@ module "image_deletion" {
   source  = "terraform-aws-modules/lambda/aws"
   version = "4.2.0"
 
-  function_name            = "${local.dash_prefix}image-deletion"
-  description              = "Lambda to process objects deleted from photo bucket"
-  handler                  = "main.lambda_handler"
-  runtime                  = "python3.8"
-  source_path              = "${path.module}/lambda/image_deletion"
-  artifacts_dir            = "${path.module}/builds"
-  publish                  = true
-  recreate_missing_package = false
-  ignore_source_code_hash  = true
-  attach_policy_statements = true
-  timeout                  = 120
+  function_name                     = "${local.dash_prefix}image-deletion"
+  description                       = "Lambda to process objects deleted from photo bucket"
+  handler                           = "main.lambda_handler"
+  runtime                           = "python3.8"
+  source_path                       = "${path.module}/lambda/image_deletion"
+  artifacts_dir                     = "${path.module}/builds"
+  publish                           = true
+  recreate_missing_package          = false
+  ignore_source_code_hash           = true
+  attach_policy_statements          = true
+  cloudwatch_logs_retention_in_days = 14
+  timeout                           = 120
 
   allowed_triggers = {
     BucketTrigger = {
