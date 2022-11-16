@@ -1,0 +1,20 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AdminManageUsers",
+            "Effect": "Allow",
+            "Action": [
+                "cognito-idp:AdminDeleteUser",
+                "cognito-idp:ListUsersInGroup",
+                "cognito-idp:ListGroups",
+                "cognito-idp:AdminCreateUser",
+                "cognito-idp:AdminRemoveUserFromGroup",
+                "cognito-idp:AdminAddUserToGroup",
+                "cognito-idp:AdminResetUserPassword",
+                "cognito-idp:ListUsers"
+            ],
+            "Resource": "${user_pool_arn}"
+        }
+    ]
+}
