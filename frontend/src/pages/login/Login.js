@@ -22,6 +22,7 @@ export const Login = () => {
         <Form.Item
             label="User"
             name="username"
+            hasFeedback
             rules={[
                 { required: true },
                 { type: "email", message: "Must be a valid email" }
@@ -32,6 +33,7 @@ export const Login = () => {
         <Form.Item
             label="Password"
             name="password"
+            hasFeedback
             rules={[
                 { required: true }
             ]}

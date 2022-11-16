@@ -2,8 +2,27 @@ import React from "react"
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 import { ReactQueryDevtools } from "react-query/devtools"
 
-import { MainLayout, LoginLayout, PrivateRoute, PublicRoute } from "components"
-import { AllPhotos, Located, Map, Login, SetPassword, ForgotPassword } from "pages"
+import {
+  MainLayout,
+  LoginLayout,
+  PrivateRoute,
+  PublicRoute,
+  AdminRoute,
+  ContributorRoute,
+  ReaderRoute,
+  NoRoleRoute
+} from "components"
+
+import {
+  AllPhotos,
+  Located,
+  Map,
+  Login,
+  SetPassword,
+  ForgotPassword,
+  NoRole
+} from "pages"
+
 import { Providers } from "context/providers_wrapper"
 
 export const App = () => {
@@ -12,12 +31,16 @@ export const App = () => {
       <Providers>
         <Routes>
 
-          <Route path="/" element={<PrivateRoute><MainLayout /></PrivateRoute>}>
+          <Route path="/" element={<PrivateRoute><ReaderRoute><MainLayout /></ReaderRoute></PrivateRoute>}>
             <Route path="photos" element={<AllPhotos />} />
             <Route path="map" element={<Map />} />
             <Route path="located/:geohash" element={<Located />} />
             <Route path="*" element={<Navigate to="/photos" />} />
-            <Route index element={<Navigate to="/photos" />} />
+            <Route index element={<Navigate to="/photos" replace />} />
+          </Route>
+
+          <Route path="/no-role" element={<PrivateRoute><LoginLayout /></PrivateRoute>} >
+            <Route index element={<NoRoleRoute><NoRole /></NoRoleRoute>} />
           </Route>
 
           <Route path="/login" element={<PublicRoute><LoginLayout /></PublicRoute>} >

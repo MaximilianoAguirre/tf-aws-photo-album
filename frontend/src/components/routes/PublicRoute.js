@@ -1,12 +1,15 @@
 import React from "react"
-import { Navigate } from "react-router-dom"
+import { Navigate, useLocation } from "react-router-dom"
 import { useQueryClient } from "react-query"
 
 import { useAuth } from "context/auth"
 
-export const PublicRoute = ({children}) => {
+export const PublicRoute = ({ children }) => {
   const { isAuthenticated } = useAuth()
   const queryClient = useQueryClient()
+  const location = useLocation()
+
+  const from = location.state?.from || "/"
 
   if (!isAuthenticated) {
     // Close websocket connection and clear cache
@@ -15,6 +18,9 @@ export const PublicRoute = ({children}) => {
     return children
   }
   else {
-    return <Navigate to="/photos" />
+    return <Navigate
+      to={from}
+      replace
+    />
   }
 }

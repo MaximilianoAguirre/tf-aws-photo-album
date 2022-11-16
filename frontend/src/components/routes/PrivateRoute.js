@@ -12,10 +12,9 @@ export const PrivateRoute = ({ children }) => {
   }
   else {
     return <Navigate
-      to={{
-        pathname: "/login",
-        state: { referrer: location.pathname }
-      }}
+      to="/login"
+      replace
+      state={{ from: location }}
     />
   }
 }

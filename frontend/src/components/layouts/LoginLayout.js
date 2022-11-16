@@ -11,7 +11,8 @@ const { useBreakpoint } = Grid
 const titles = {
     "/login": "Login",
     "/login/set-password": "Set password",
-    "/login/forgot-password": "Reset password"
+    "/login/forgot-password": "Reset password",
+    "/no-role": "No role assigned"
 }
 
 export const LoginLayout = () => {
@@ -25,7 +26,7 @@ export const LoginLayout = () => {
         >
             <Card
                 title={titles[pathname]}
-                extra={pathname !== "/login" && <Button
+                extra={!["/login", "/no-role"].includes(pathname) && <Button
                     icon={<HomeOutlined />}
                     type="primary"
                     onClick={() => navigate("/login")}

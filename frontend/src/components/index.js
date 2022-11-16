@@ -10,6 +10,10 @@ import { ImagePreview } from "./image/ImagePreview"
 
 import { PrivateRoute } from "./routes/PrivateRoute"
 import { PublicRoute } from "./routes/PublicRoute"
+import { AdminRoute } from "./routes/AdminRoute"
+import { ContributorRoute } from "./routes/ContributorRoute"
+import { ReaderRoute } from "./routes/ReaderRoute"
+import { NoRoleRoute } from "./routes/NoRoleRoute"
 
 export {
     CustomFooter,
@@ -21,5 +25,9 @@ export {
     ImageDrawer,
     ImagePreview,
     PrivateRoute,
-    PublicRoute
+    PublicRoute,
+    AdminRoute,
+    ContributorRoute,
+    ReaderRoute,
+    NoRoleRoute
 }

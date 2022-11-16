@@ -7,10 +7,10 @@ import { cognitoConfig } from "config/cognito"
 
 Amplify.configure(cognitoConfig)
 
-const AuthContext = createContext();
+const AuthContext = createContext()
 
 export function useAuth() {
-    return useContext(AuthContext);
+    return useContext(AuthContext)
 }
 
 const ACTIONS = {
@@ -38,10 +38,11 @@ var INITIAL_STATE = {
     isLoggingOut: false,
     user: null,
     userId: null,
+    userRoles: null,
     isChallenged: false,
     challengePayload: null,
     challenge: null,
-    isChangingPassword: false
+    isChangingPassword: false,
 }
 
 function reducer(state, action) {
@@ -54,6 +55,7 @@ function reducer(state, action) {
                 isAuthenticating: false,
                 user: action.payload,
                 userId: action.payload.attributes.email,
+                userRoles: action.payload.signInUserSession.idToken.payload["cognito:groups"],
                 isChallenged: false,
                 challengePayload: null,
                 challenge: null,
@@ -66,6 +68,7 @@ function reducer(state, action) {
                 isLoggingOut: false,
                 user: null,
                 userId: null,
+                userRoles: null,
                 isChallenged: false,
                 challengePayload: null,
                 challenge: null,
