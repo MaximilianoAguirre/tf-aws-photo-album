@@ -15,3 +15,7 @@ This is a terraform module that deploys an end to end solution to host and consu
   - The table is designed to optimize queries
 - Cognito services to manage access to your photos
 - S3 bucket with a cloudfront distribution to host the app
+
+## Diagram
+
+![Architecture diagram](images/Diagram.drawio.svg)
