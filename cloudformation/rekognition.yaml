@@ -10,3 +10,6 @@ Outputs:
   collectionArn:
     Description: Arn of the collection
     Value: !GetAtt rekognitionCollection.Arn
+  collectionId:
+    Description: Arn of the collection
+    Value: !Ref rekognitionCollection
