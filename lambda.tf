@@ -50,14 +50,21 @@ module "image_processor" {
     dynamodb = {
       effect    = "Allow"
       actions   = ["dynamodb:PutItem", "dynamodb:Scan", "dynamodb:Query", "dynamodb:UpdateItem"]
-      resources = [aws_dynamodb_table.photo_tracker.arn]
+      resources = [aws_dynamodb_table.photo_tracker.arn, "${aws_dynamodb_table.photo_tracker.arn}/index/*"]
+    }
+
+    rekognition = {
+      effect    = "Allow"
+      actions   = ["rekognition:IndexFaces", "rekognition:SearchFaces"]
+      resources = [aws_cloudformation_stack.rekognition.outputs.collectionArn]
     }
   }
 
   environment_variables = {
-    photo_table         = aws_dynamodb_table.photo_tracker.id
-    photo_bucket        = module.photo_bucket.s3_bucket_id
-    photo_assets_bucket = module.photo_assets_bucket.s3_bucket_id
+    photo_table               = aws_dynamodb_table.photo_tracker.id
+    photo_bucket              = module.photo_bucket.s3_bucket_id
+    photo_assets_bucket       = module.photo_assets_bucket.s3_bucket_id
+    rekognition_collection_id = aws_cloudformation_stack.rekognition.outputs.collectionId
   }
 }
 

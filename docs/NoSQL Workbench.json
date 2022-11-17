@@ -1,0 +1,360 @@
+{
+  "ModelName": "Photo album",
+  "ModelMetadata": {
+    "Author": "Maximiliano Aguirre",
+    "DateCreated": "Nov 16, 2022, 05:53 PM",
+    "DateLastModified": "Nov 16, 2022, 11:21 PM",
+    "Description": "Schema to use with photo album",
+    "AWSService": "Amazon DynamoDB",
+    "Version": "3.0"
+  },
+  "DataModel": [
+    {
+      "TableName": "photo-tracker",
+      "KeyAttributes": {
+        "PartitionKey": {
+          "AttributeName": "PK",
+          "AttributeType": "S"
+        },
+        "SortKey": {
+          "AttributeName": "SK",
+          "AttributeType": "S"
+        }
+      },
+      "NonKeyAttributes": [
+        {
+          "AttributeName": "GSI1PK",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "GSI1SK",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "GSI2PK",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "GSI2SK",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "geohash",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "blurhash",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "timestamp",
+          "AttributeType": "N"
+        },
+        {
+          "AttributeName": "confidence",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "bounding_box",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "content_type",
+          "AttributeType": "S"
+        }
+      ],
+      "GlobalSecondaryIndexes": [
+        {
+          "IndexName": "GSI1",
+          "KeyAttributes": {
+            "PartitionKey": {
+              "AttributeName": "GSI1PK",
+              "AttributeType": "S"
+            },
+            "SortKey": {
+              "AttributeName": "GSI1SK",
+              "AttributeType": "S"
+            }
+          },
+          "Projection": {
+            "ProjectionType": "ALL"
+          }
+        },
+        {
+          "IndexName": "GSI2",
+          "KeyAttributes": {
+            "PartitionKey": {
+              "AttributeName": "GSI2PK",
+              "AttributeType": "S"
+            },
+            "SortKey": {
+              "AttributeName": "GSI2SK",
+              "AttributeType": "S"
+            }
+          },
+          "Projection": {
+            "ProjectionType": "ALL"
+          }
+        },
+        {
+          "IndexName": "Inverted",
+          "KeyAttributes": {
+            "PartitionKey": {
+              "AttributeName": "SK",
+              "AttributeType": "S"
+            },
+            "SortKey": {
+              "AttributeName": "PK",
+              "AttributeType": "S"
+            }
+          },
+          "Projection": {
+            "ProjectionType": "ALL"
+          }
+        }
+      ],
+      "TableData": [
+        {
+          "PK": {
+            "S": "#S3#test1.jpg"
+          },
+          "SK": {
+            "S": "#METADATA"
+          },
+          "GSI1PK": {
+            "S": "#GEOHASH"
+          },
+          "GSI1SK": {
+            "S": "adfgsdfhsfh"
+          },
+          "GSI2PK": {
+            "S": "#TIMESTAMP"
+          },
+          "GSI2SK": {
+            "S": "131651651"
+          },
+          "geohash": {
+            "S": "adfgsdfhsfh"
+          },
+          "blurhash": {
+            "S": "adfhahsfgsfgn"
+          },
+          "timestamp": {
+            "N": "131651651"
+          },
+          "content_type": {
+            "S": "image/jpg"
+          }
+        },
+        {
+          "PK": {
+            "S": "#S3#test2.jpg"
+          },
+          "SK": {
+            "S": "#METADATA"
+          },
+          "GSI1PK": {
+            "S": "#GEOHASH"
+          },
+          "GSI1SK": {
+            "S": "qergerg61"
+          },
+          "GSI2PK": {
+            "S": "#TIMESTAMP"
+          },
+          "GSI2SK": {
+            "S": "3216849"
+          },
+          "geohash": {
+            "S": "qergerg61"
+          },
+          "blurhash": {
+            "S": "erg41r9"
+          },
+          "timestamp": {
+            "N": "3216849"
+          },
+          "content_type": {
+            "S": "image/jpg"
+          }
+        },
+        {
+          "PK": {
+            "S": "#S3#test3.mpeg"
+          },
+          "SK": {
+            "S": "#METADATA"
+          },
+          "GSI1PK": {
+            "S": "#GEOHASH"
+          },
+          "GSI1SK": {
+            "S": "adgadg951"
+          },
+          "GSI2PK": {
+            "S": "#TIMESTAMP"
+          },
+          "GSI2SK": {
+            "S": "3216564"
+          },
+          "geohash": {
+            "S": "adgadg951"
+          },
+          "timestamp": {
+            "N": "3216564"
+          },
+          "content_type": {
+            "S": "video/mpeg"
+          }
+        },
+        {
+          "PK": {
+            "S": "#S3#test4.mpeg"
+          },
+          "SK": {
+            "S": "#METADATA"
+          },
+          "GSI2PK": {
+            "S": "#TIMESTAMP"
+          },
+          "GSI2SK": {
+            "S": "95195151"
+          },
+          "timestamp": {
+            "N": "95195151"
+          },
+          "content_type": {
+            "S": "video/mpeg"
+          }
+        },
+        {
+          "PK": {
+            "S": "#S3#test1.jpg"
+          },
+          "SK": {
+            "S": "#FACE#1"
+          },
+          "confidence": {
+            "S": "99.5"
+          },
+          "bounding_box": {
+            "S": "{\"Width\": 0.06215326860547066, \"Height\": 0.09739799052476883, \"Left\": 0.6588610410690308, \"Top\": 0.5277116894721985}"
+          }
+        },
+        {
+          "PK": {
+            "S": "#S3#test1.jpg"
+          },
+          "SK": {
+            "S": "#FACE#2"
+          },
+          "confidence": {
+            "S": "99.5"
+          },
+          "bounding_box": {
+            "S": "{\"Width\": 0.06215326860547066, \"Height\": 0.09739799052476883, \"Left\": 0.6588610410690308, \"Top\": 0.5277116894721985}"
+          }
+        },
+        {
+          "PK": {
+            "S": "#S3#test2.jpg"
+          },
+          "SK": {
+            "S": "#FACE#3"
+          },
+          "confidence": {
+            "S": "99.5"
+          },
+          "bounding_box": {
+            "S": "{\"Width\": 0.06215326860547066, \"Height\": 0.09739799052476883, \"Left\": 0.6588610410690308, \"Top\": 0.5277116894721985}"
+          }
+        },
+        {
+          "PK": {
+            "S": "#S3#test2.jpg"
+          },
+          "SK": {
+            "S": "#FACE#4"
+          },
+          "confidence": {
+            "S": "99.5"
+          },
+          "bounding_box": {
+            "S": "{\"Width\": 0.06215326860547066, \"Height\": 0.09739799052476883, \"Left\": 0.6588610410690308, \"Top\": 0.5277116894721985}"
+          }
+        },
+        {
+          "PK": {
+            "S": "#PERSON#name1"
+          },
+          "SK": {
+            "S": "#FACE#1"
+          },
+          "confidence": {
+            "S": "100"
+          }
+        },
+        {
+          "PK": {
+            "S": "#PERSON#name1"
+          },
+          "SK": {
+            "S": "#FACE#3"
+          },
+          "confidence": {
+            "S": "98"
+          }
+        },
+        {
+          "PK": {
+            "S": "#PERSON#name2"
+          },
+          "SK": {
+            "S": "#FACE#2"
+          },
+          "confidence": {
+            "S": "100"
+          }
+        },
+        {
+          "PK": {
+            "S": "#PERSON#name3"
+          },
+          "SK": {
+            "S": "#FACE#4"
+          }
+        }
+      ],
+      "DataAccess": {
+        "MySql": {}
+      },
+      "BillingMode": "PROVISIONED",
+      "ProvisionedCapacitySettings": {
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 5,
+          "WriteCapacityUnits": 5
+        },
+        "AutoScalingRead": {
+          "ScalableTargetRequest": {
+            "MinCapacity": 1,
+            "MaxCapacity": 10,
+            "ServiceRole": "AWSServiceRoleForApplicationAutoScaling_DynamoDBTable"
+          },
+          "ScalingPolicyConfiguration": {
+            "TargetValue": 70
+          }
+        },
+        "AutoScalingWrite": {
+          "ScalableTargetRequest": {
+            "MinCapacity": 1,
+            "MaxCapacity": 10,
+            "ServiceRole": "AWSServiceRoleForApplicationAutoScaling_DynamoDBTable"
+          },
+          "ScalingPolicyConfiguration": {
+            "TargetValue": 70
+          }
+        }
+      }
+    }
+  ]
+}

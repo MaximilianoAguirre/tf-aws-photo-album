@@ -12,10 +12,10 @@ export function useAllPhotos(limit = null, options = {}) {
                 TableName: config.DYNAMO_TABLE,
                 Limit: limit,
                 ScanIndexForward: false,
-                IndexName: "timestamp",
-                KeyConditionExpression: "range_key = :image",
+                IndexName: "GSI2",
+                KeyConditionExpression: "GSI2PK=:GSI2PK",
                 ExpressionAttributeValues: {
-                    ":image": { "S": "image" }
+                    ":GSI2PK": { "S": "#TIMESTAMP" }
                 },
             })
 
@@ -38,10 +38,10 @@ export function useAllPhotosInfinite(limit = 20, options = {}) {
                 TableName: config.DYNAMO_TABLE,
                 Limit: limit,
                 ScanIndexForward: false,
-                IndexName: "timestamp",
-                KeyConditionExpression: "range_key = :image",
+                IndexName: "GSI2",
+                KeyConditionExpression: "GSI2PK=:GSI2PK",
                 ExpressionAttributeValues: {
-                    ":image": { "S": "image" }
+                    ":GSI2PK": { "S": "#TIMESTAMP" }
                 },
                 ExclusiveStartKey: pageParam
             })
@@ -65,10 +65,10 @@ export function useLocatedPhotos(hash, { limit = null, options = {} } = {}) {
             const command = new QueryCommand({
                 TableName: config.DYNAMO_TABLE,
                 Limit: limit,
-                IndexName: "geohash",
-                KeyConditionExpression: "range_key = :image AND begins_with(geohash, :hash)",
+                IndexName: "GSI1",
+                KeyConditionExpression: "GSI1PK=:GSI1PK AND begins_with(GSI1SK, :hash)",
                 ExpressionAttributeValues: {
-                    ":image": { "S": "image" },
+                    ":GSI1PK": { "S": "#GEOHASH" },
                     ":hash": { "S": hash }
                 },
             })
@@ -91,10 +91,10 @@ export function useLocatedPhotosInfinite(hash, { limit = 20, options = {} } = {}
             const command = new QueryCommand({
                 TableName: config.DYNAMO_TABLE,
                 Limit: limit,
-                IndexName: "geohash",
-                KeyConditionExpression: "range_key = :image AND begins_with(geohash, :hash)",
+                IndexName: "GSI1",
+                KeyConditionExpression: "GSI1PK=:GSI1PK AND begins_with(GSI1SK, :hash)",
                 ExpressionAttributeValues: {
-                    ":image": { "S": "image" },
+                    ":GSI1PK": { "S": "#GEOHASH" },
                     ":hash": { "S": hash }
                 },
                 ExclusiveStartKey: pageParam
@@ -119,10 +119,10 @@ export function useLocatedPhotoslList(hashes, { limit = null, options = {} } = {
                 const command = new QueryCommand({
                     TableName: config.DYNAMO_TABLE,
                     Limit: limit,
-                    IndexName: "geohash",
-                    KeyConditionExpression: "range_key = :image AND begins_with(geohash, :hash)",
+                    IndexName: "GSI1",
+                    KeyConditionExpression: "GSI1PK=:GSI1PK AND begins_with(GSI1SK, :hash)",
                     ExpressionAttributeValues: {
-                        ":image": { "S": "image" },
+                        ":GSI1PK": { "S": "#GEOHASH" },
                         ":hash": { "S": hash }
                     }
                 })

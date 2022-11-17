@@ -41,7 +41,7 @@ export const ImageDrawer = forwardRef((props, ref) => {
                 >
                     {
                         data?.map(photo => <Col
-                            key={photo.hash_key.S}
+                            key={photo.name.S}
                         >
                             <CustomImage
                                 photo={photo}

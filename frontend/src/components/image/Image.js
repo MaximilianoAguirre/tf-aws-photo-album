@@ -12,8 +12,8 @@ const max_height = (width) => {
 
 export const CustomImage = ({ photo, width, style }) => {
     const preview = useRef()
-    const { data: photoUrl } = useScaledPhotoURL(photo.hash_key.S, width)
-    const { data: OriginalPhotoUrl } = useOriginalPhotoURL(photo.hash_key.S, width)
+    const { data: photoUrl } = useScaledPhotoURL(photo.name.S, width)
+    const { data: OriginalPhotoUrl } = useOriginalPhotoURL(photo.name.S, width)
 
     const src = photo.resized?.BOOL ? photoUrl : OriginalPhotoUrl
     let height, final_width

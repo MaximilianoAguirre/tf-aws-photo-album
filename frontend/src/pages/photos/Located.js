@@ -1,5 +1,5 @@
 import React, { useCallback } from "react"
-import { Col, Row, Spin } from 'antd'
+import { Col, Row, Spin, Empty } from 'antd'
 import { useParams } from "react-router-dom"
 
 import { useLocatedPhotosInfinite } from "api/dynamo"
@@ -29,9 +29,10 @@ export const Located = () => {
         }
     }, [])
 
-    return isLoading ?
-        <Spin />
-        :
+    if (isLoading) return <Spin />
+    if (!photos.length) return <Empty style={{ marginTop: "15px" }} description="No media uploaded" />
+
+    return (
         <Row
             justify="center"
             align="middle"
@@ -40,7 +41,7 @@ export const Located = () => {
         >
             {
                 photos.map(photo => <Col
-                    key={photo.hash_key.S}
+                    key={photo.name.S}
                 >
                     <CustomImage
                         photo={photo}
@@ -56,4 +57,5 @@ export const Located = () => {
             {/* Div to watch for scroll */}
             <div ref={scrollRef} />
         </Row>
+    )
 }

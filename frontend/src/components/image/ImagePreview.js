@@ -7,7 +7,7 @@ import { fallback_image } from "util/fallback_image"
 
 export const ImagePreview = forwardRef(({ photo }, ref) => {
     const [open, setOpen] = useState(false)
-    const { data: photoUrl } = useOriginalPhotoURL(photo.hash_key.S)
+    const { data: photoUrl } = useOriginalPhotoURL(photo.name.S)
 
     useImperativeHandle(ref, () => ({
         open() {
@@ -16,7 +16,7 @@ export const ImagePreview = forwardRef(({ photo }, ref) => {
     }))
 
     return <Modal
-        title={photo.hash_key.S}
+        title={photo.name.S}
         open={open}
         onCancel={() => setOpen(false)}
         wrapClassName="fullscreen-modal"

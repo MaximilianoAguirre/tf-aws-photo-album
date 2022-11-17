@@ -83,5 +83,5 @@ resource "aws_s3_object" "static_frontend_config_file" {
   key          = "config.js"
   content      = local.frontend_config
   etag         = md5(local.frontend_config)
-  content_type = "application/json"
+  content_type = "application/javascript"
 }

@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react"
-import { Button, Col, Row, Spin } from 'antd'
+import { Button, Col, Row, Spin, Empty } from 'antd'
 
 import { useAllPhotosInfinite } from "api/dynamo"
 import { CustomImage } from "components"
@@ -30,9 +30,10 @@ export const AllPhotos = () => {
         }
     }, [])
 
-    return isLoading ?
-        <Spin />
-        :
+    if (isLoading) return <Spin />
+    if (!photos.length) return <Empty style={{ marginTop: "15px" }} description="No media uploaded" />
+
+    return (
         <>
             <Row
                 style={{ marginTop: "15px", width: "100%" }}
@@ -53,7 +54,7 @@ export const AllPhotos = () => {
             >
                 {
                     photos.map(photo => <Col
-                        key={photo.hash_key.S}
+                        key={photo.PK.S}
                     >
                         <CustomImage
                             photo={photo}
@@ -70,4 +71,5 @@ export const AllPhotos = () => {
                 <div ref={scrollRef} />
             </Row>
         </>
+    )
 }
