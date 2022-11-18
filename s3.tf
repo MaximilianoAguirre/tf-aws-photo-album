@@ -22,6 +22,23 @@ module "photo_assets_bucket" {
 }
 
 ########################################################
+# PHOTO BUCKET TRIGGERS
+########################################################
+resource "aws_s3_bucket_notification" "s3_triggers" {
+  bucket = module.photo_bucket.s3_bucket_id
+
+  topic {
+    topic_arn = aws_sns_topic.photo_album_create.arn
+    events    = ["s3:ObjectCreated:*"]
+  }
+
+  lambda_function {
+    lambda_function_arn = module.image_deletion.lambda_function_arn
+    events              = ["s3:ObjectRemoved:*"]
+  }
+}
+
+########################################################
 # WEBPAGE BUCKET
 ########################################################
 module "web_bucket" {
