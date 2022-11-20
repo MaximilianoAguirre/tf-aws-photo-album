@@ -2,11 +2,12 @@ import React, { useState } from "react"
 import { Drawer, Button, Modal, Form, Input } from 'antd'
 import { CheckCircleOutlined, CloseCircleOutlined, LogoutOutlined, EditOutlined } from "@ant-design/icons"
 
-import { useAuth } from "context/auth"
+import { useAuth, useUserDrawer } from "context"
 
 
-export const UserDrawer = ({ opened, close }) => {
+export const UserDrawer = () => {
     const [form] = Form.useForm()
+    const { opened, close } = useUserDrawer()
     const { userId, logout, isLoggingOut, changePassword, isChangingPassword } = useAuth()
     const [changePwdModal, setChangePwdModal] = useState(false)
 

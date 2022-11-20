@@ -62,7 +62,7 @@ export const Map = () => {
             minZoom={4}
             scrollWheelZoom={true}
             loadingControl={true}
-            style={{ height: "300px", minHeight: "calc(100vh - 57px)" }}
+            style={{ height: "300px", minHeight: "100vh" }}
             ref={setMap}
             whenReady={(e) => {
                 const map = e.target
@@ -92,7 +92,7 @@ export const Map = () => {
             }}
         >
             <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                attribution='&copy; <a target="_blank" href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | <a target="_blank" href="https://www.linkedin.com/in/MaximilianoAguirre/">Maxi Aguirre</a>'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             {

@@ -3,11 +3,13 @@ import { Col, Row, Spin, Empty } from 'antd'
 import { useParams } from "react-router-dom"
 
 import { useLocatedPhotosInfinite } from "api/dynamo"
-import { CustomImage } from "components"
+import { CustomImage, StickyHeader } from "components"
+import { useImageSize } from "context"
 
 
 export const Located = () => {
     let { geohash } = useParams()
+    const { current: width } = useImageSize()
     const { data, isLoading, fetchNextPage, isFetchingNextPage } = useLocatedPhotosInfinite(geohash)
 
     // Process all pages returned by DynamoDB and create a single list of photos
@@ -32,7 +34,8 @@ export const Located = () => {
     if (isLoading) return <Spin />
     if (!photos.length) return <Empty style={{ marginTop: "15px" }} description="No media uploaded" />
 
-    return (
+    return <>
+        <StickyHeader title="Located photos" />
         <Row
             justify="center"
             align="middle"
@@ -45,7 +48,7 @@ export const Located = () => {
                 >
                     <CustomImage
                         photo={photo}
-                        width={300}
+                        width={width}
                     />
                 </Col>)
             }
@@ -57,5 +60,5 @@ export const Located = () => {
             {/* Div to watch for scroll */}
             <div ref={scrollRef} />
         </Row>
-    )
+    </>
 }

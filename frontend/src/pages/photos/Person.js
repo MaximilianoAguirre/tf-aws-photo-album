@@ -1,9 +1,10 @@
-import React, { useState } from "react"
+import React from "react"
 import { Spin, Empty, Row, Col } from 'antd'
 import { useParams } from "react-router-dom"
 
 import { usePersonPhotosInfinite } from "api/dynamo"
-import { CustomImageFromId, Frame } from "components"
+import { CustomImageFromId, Frame, StickyHeader } from "components"
+import { useImageSize } from "context"
 
 export const Person = () => {
     const { id } = useParams()
@@ -16,19 +17,23 @@ export const Person = () => {
     if (isLoading) return <Spin />
     if (!photos.length) return <Empty style={{ marginTop: "15px" }} description="No data" />
 
-    return <Row
-        justify="center"
-        align="middle"
-        gutter={[15, 15]}
-        style={{ marginTop: "15px", width: "100%" }}
-    >
-        {
-            photos.map(photo => <PersonPhoto key={photo.PK.S} photo={photo} />)
-        }
-    </Row>
+    return <>
+        <StickyHeader title="Person photos" />
+        <Row
+            justify="center"
+            align="middle"
+            gutter={[15, 15]}
+            style={{ marginTop: "15px", width: "100%" }}
+        >
+            {
+                photos.map(photo => <PersonPhoto key={photo.PK.S} photo={photo} />)
+            }
+        </Row>
+    </>
 }
 
 const PersonPhoto = ({ photo }) => {
+    const { current: width } = useImageSize()
 
     const box = JSON.parse(photo.bounding_box.S)
     const boundaries = {
@@ -40,19 +45,17 @@ const PersonPhoto = ({ photo }) => {
 
     return <Col
         key={photo.PK.S}
-        style={{
-            position: "relative"
-        }}
+        style={{ position: "relative" }}
     >
         <CustomImageFromId
             photoId={photo.PK.S}
-            width={768}
+            width={width}
             style={{
                 position: "absolute",
                 top: 0,
                 left: 0,
             }}
         />
-        <Frame width={768} {...boundaries} />
+        <Frame width={width} {...boundaries} />
     </Col>
 }
