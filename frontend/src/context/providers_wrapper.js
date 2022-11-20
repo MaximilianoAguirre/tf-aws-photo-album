@@ -1,13 +1,16 @@
 import React from "react"
 
 // Context providers
-import { ReactQueryProvider } from "context/react_query"
-import { AuthProvider } from "context/auth"
+import { ReactQueryProvider } from "./react_query"
+import { AuthProvider } from "./auth"
+import { AntdProvider } from "./antd"
 
 export function Providers({ children }) {
     return <AuthProvider>
         <ReactQueryProvider>
-            {children}
+            <AntdProvider>
+                {children}
+            </AntdProvider>
         </ReactQueryProvider>
     </AuthProvider>
 }

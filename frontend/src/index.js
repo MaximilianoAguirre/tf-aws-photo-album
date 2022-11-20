@@ -4,8 +4,8 @@ import reportWebVitals from './reportWebVitals'
 
 import { App } from './App'
 
-// AntD style
-import 'antd/dist/antd.dark.css'
+// Reset style provided by AntD
+import "antd/dist/reset.css"
 
 // Leaflet styles
 import 'leaflet/dist/leaflet.css'

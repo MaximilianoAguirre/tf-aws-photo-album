@@ -13,11 +13,7 @@ export const SetPassword = () => {
 
     return <Form
         name="new-password"
-        requiredMark={false}
         onFinish={(values) => setPassword(values)}
-        validateMessages={{
-            required: "${label} required"
-        }}
     >
         <Form.Item
             label="User"

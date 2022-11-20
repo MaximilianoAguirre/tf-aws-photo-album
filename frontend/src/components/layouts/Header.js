@@ -20,6 +20,11 @@ export const CustomHeader = ({ openUserDrawer }) => {
             key: "/map",
             path: "/map",
             label: "Map"
+        },
+        {
+            key: "/persons",
+            path: "/persons",
+            label: "Persons"
         }
     ]
 

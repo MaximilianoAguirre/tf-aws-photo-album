@@ -58,7 +58,6 @@ export const UserDrawer = ({ opened, close }) => {
         >
             <Form
                 name="change-password"
-                requiredMark={false}
                 form={form}
                 onFinish={(values) => {
                     changePassword({
@@ -68,9 +67,6 @@ export const UserDrawer = ({ opened, close }) => {
                             setChangePwdModal(false)
                         }
                     })
-                }}
-                validateMessages={{
-                    required: "${label} required"
                 }}
             >
                 <Form.Item

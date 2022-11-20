@@ -91,6 +91,11 @@ def process_with_rekognition(key):
             dynamo_client.update_item(
                 TableName=PHOTO_TABLE,
                 Key={"PK": {"S": f"#PERSON#{face_id}"}, "SK": {"S": "#METADATA"}},
+                UpdateExpression=f"SET #name=:name",
+                ExpressionAttributeValues={
+                    ":name": {"S": face_id},
+                },
+                ExpressionAttributeNames={"#name": "name"},
             )
 
             dynamo_client.update_item(

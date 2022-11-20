@@ -20,7 +20,9 @@ import {
   Login,
   SetPassword,
   ForgotPassword,
-  NoRole
+  NoRole,
+  AllPersons,
+  Person
 } from "pages"
 
 import { Providers } from "context/providers_wrapper"
@@ -33,6 +35,8 @@ export const App = () => {
 
           <Route path="/" element={<PrivateRoute><ReaderRoute><MainLayout /></ReaderRoute></PrivateRoute>}>
             <Route path="photos" element={<AllPhotos />} />
+            <Route path="persons" element={<AllPersons />} />
+            <Route path="person/:id" element={<Person />} />
             <Route path="map" element={<Map />} />
             <Route path="located/:geohash" element={<Located />} />
             <Route path="*" element={<Navigate to="/photos" />} />

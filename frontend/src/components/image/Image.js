@@ -3,6 +3,7 @@ import { Image } from 'antd'
 import { Blurhash } from "react-blurhash"
 
 import { useScaledPhotoURL, useOriginalPhotoURL } from "api/s3"
+import { usePhoto } from "api/dynamo"
 import { fallback_image } from "util/fallback_image"
 import { ImagePreview } from "components"
 
@@ -10,7 +11,7 @@ const max_height = (width) => {
     return 1.5 * width
 }
 
-export const CustomImage = ({ photo, width, style }) => {
+export const CustomImage = ({ photo, width, style, rootClassName }) => {
     const preview = useRef()
     const { data: photoUrl } = useScaledPhotoURL(photo.name.S, width)
     const { data: OriginalPhotoUrl } = useOriginalPhotoURL(photo.name.S, width)
@@ -36,6 +37,7 @@ export const CustomImage = ({ photo, width, style }) => {
                 height={height}
                 src={src}
                 preview={false}
+                rootClassName={rootClassName}
                 style={{
                     ...style,
                     cursor: "pointer"
@@ -52,4 +54,17 @@ export const CustomImage = ({ photo, width, style }) => {
         </div>
         <ImagePreview ref={preview} photo={photo} />
     </>
+}
+
+export const CustomImageFromId = ({ photoId, width, style, rootClassName }) => {
+    const { data, isLoading } = usePhoto(photoId)
+
+    if (isLoading) return
+
+    return <CustomImage
+        photo={data}
+        width={width}
+        style={style}
+        rootClassName={rootClassName}
+    />
 }

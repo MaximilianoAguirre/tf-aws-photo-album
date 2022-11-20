@@ -30,6 +30,83 @@ export function useAllPhotos(limit = null, options = {}) {
     )
 }
 
+export function usePhoto(id, options = {}) {
+    return useQuery(
+        ["photos", id],
+        async () => {
+            const command = new QueryCommand({
+                TableName: config.DYNAMO_TABLE,
+                KeyConditionExpression: "PK=:PK AND SK=:SK",
+                ExpressionAttributeValues: {
+                    ":PK": { "S": id },
+                    ":SK": { "S": "#METADATA" }
+                },
+            })
+
+            const client = await getSignedClient(DynamoDBClient)
+            const response = await client.send(command)
+            return response
+        },
+        {
+            ...options,
+            select: data => data.Items[0]
+        }
+    )
+}
+
+export function useAllPersons(limit = null, options = {}) {
+    return useQuery(
+        ["all-persons", limit],
+        async () => {
+            const command = new QueryCommand({
+                TableName: config.DYNAMO_TABLE,
+                Limit: limit,
+                ScanIndexForward: false,
+                IndexName: "inverted",
+                KeyConditionExpression: "SK=:SK AND begins_with(PK, :PK)",
+                ExpressionAttributeValues: {
+                    ":SK": { "S": "#METADATA" },
+                    ":PK": { "S": "#PERSON" }
+                },
+            })
+
+            const client = await getSignedClient(DynamoDBClient)
+            const response = await client.send(command)
+            return response
+        },
+        {
+            ...options,
+            select: data => data.Items
+        }
+    )
+}
+
+export function usePersonPhotosInfinite(id, limit = 20, options = {}) {
+    return useInfiniteQuery(
+        ["person-photos-infinite", id, limit],
+        async ({ pageParam = null }) => {
+            const command = new QueryCommand({
+                TableName: config.DYNAMO_TABLE,
+                Limit: limit,
+                IndexName: "GSI1",
+                KeyConditionExpression: "GSI1PK=:GSI1PK",
+                ExpressionAttributeValues: {
+                    ":GSI1PK": { "S": id }
+                },
+                ExclusiveStartKey: pageParam
+            })
+
+            const client = await getSignedClient(DynamoDBClient)
+            const response = await client.send(command)
+            return response
+        },
+        {
+            ...options,
+            getNextPageParam: (lastPage, pages) => lastPage.LastEvaluatedKey
+        }
+    )
+}
+
 export function useAllPhotosInfinite(limit = 20, options = {}) {
     return useInfiniteQuery(
         ["all-photos-infinite", limit],
@@ -52,7 +129,6 @@ export function useAllPhotosInfinite(limit = 20, options = {}) {
         },
         {
             ...options,
-            // select: data => data.Items,
             getNextPageParam: (lastPage, pages) => lastPage.LastEvaluatedKey
         }
     )

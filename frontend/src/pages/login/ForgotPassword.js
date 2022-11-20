@@ -17,7 +17,6 @@ export const ForgotPassword = () => {
 
     return <Form
         name="forgot-password"
-        requiredMark={false}
         form={form}
         onFinish={({ username, code, new_password }) => {
             setChangingPassword(true)
@@ -29,9 +28,6 @@ export const ForgotPassword = () => {
                 })
                 .catch((err) => message.error(err.message))
                 .finally(() => setChangingPassword(false))
-        }}
-        validateMessages={{
-            required: "${label} required"
         }}
     >
         <Form.Item

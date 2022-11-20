@@ -13,11 +13,7 @@ export const Login = () => {
     return <Form
         name="login"
         form={form}
-        requiredMark={false}
         onFinish={(values) => login(values)}
-        validateMessages={{
-            required: "${label} required"
-        }}
     >
         <Form.Item
             label="User"
