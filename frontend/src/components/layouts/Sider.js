@@ -5,6 +5,8 @@ import { useLocation, useNavigate } from 'react-router-dom'
 
 import { useUserDrawer, useTheme } from "context"
 
+import Asd from "images/logo.png"
+
 
 const { Sider } = Layout
 
@@ -45,13 +47,15 @@ export const CustomSider = () => {
 
         }}
     >
+        <img src={Asd} style={{width: "46px", margin: "5px 17px"}} />
+
         <Menu
             theme="dark"
             mode="inline"
             selectedKeys={pages.filter(item => location.pathname.startsWith(item.key)).map(item => item.key)}
             items={pages}
             onSelect={({ key }) => navigate(key)}
-            style={{ marginTop: "56px" }}
+            style={{ marginTop: "5px" }}
         />
 
         <div
@@ -64,9 +68,9 @@ export const CustomSider = () => {
         >
             <Button
                 icon={<BulbOutlined />}
-                style={{marginBottom: "5px", width: "100%"}}
+                style={{ marginBottom: "5px", width: "100%" }}
                 type={theme === "dark" ? "default" : "primary"}
-                onClick={()=> setTheme(theme === "dark" ? "light" : "dark")}
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             />
             <Button
                 icon={<UserOutlined />}
