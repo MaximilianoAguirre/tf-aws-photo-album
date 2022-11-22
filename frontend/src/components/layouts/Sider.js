@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 
 import { useUserDrawer, useTheme } from "context"
 
-import Asd from "images/logo.png"
+import logo from "images/logo.png"
 
 
 const { Sider } = Layout
@@ -47,7 +47,7 @@ export const CustomSider = () => {
 
         }}
     >
-        <img src={Asd} style={{width: "46px", margin: "5px 17px"}} />
+        <img src={logo} alt="logo" style={{width: "46px", margin: "5px 17px"}} />
 
         <Menu
             theme="dark"
@@ -55,7 +55,7 @@ export const CustomSider = () => {
             selectedKeys={pages.filter(item => location.pathname.startsWith(item.key)).map(item => item.key)}
             items={pages}
             onSelect={({ key }) => navigate(key)}
-            style={{ marginTop: "5px" }}
+            style={{ marginTop: "5px", marginLeft: "5px" }}
         />
 
         <div

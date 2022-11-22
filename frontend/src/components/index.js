@@ -5,6 +5,7 @@ import { UserDrawer } from "./layouts/UserDrawer"
 import { MainLayout } from "./layouts/MainLayout"
 import { LoginLayout } from "./layouts/LoginLayout"
 import { UserButton } from "./layouts/UserButton"
+import { CustomSpinner, WrappedSpinner } from "./layouts/CustomSpinner"
 
 import { CustomImage, CustomImageFromId } from "./image/Image"
 import { ImageDrawer } from "./image/ImageDrawer"
@@ -19,11 +20,15 @@ import { ContributorRoute } from "./routes/ContributorRoute"
 import { ReaderRoute } from "./routes/ReaderRoute"
 import { NoRoleRoute } from "./routes/NoRoleRoute"
 
+import { LocatedMap } from "./map/LocatedMap"
+
 export {
     CustomFooter,
     CustomSider,
     StickyHeader,
     UserButton,
+    CustomSpinner,
+    WrappedSpinner,
     UserDrawer,
     MainLayout,
     LoginLayout,
@@ -38,5 +43,6 @@ export {
     AdminRoute,
     ContributorRoute,
     ReaderRoute,
-    NoRoleRoute
+    NoRoleRoute,
+    LocatedMap
 }

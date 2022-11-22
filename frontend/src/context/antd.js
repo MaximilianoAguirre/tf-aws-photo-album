@@ -10,7 +10,11 @@ export function AntdProvider({ children }) {
     return <ConfigProvider
         form={{
             validateMessages: {
-                required: "${label} required"
+                required: "${label} required",
+                whitespace: "${label} cannot be empty",
+                string: {
+                    min: "${label} must have at least ${min} chars"
+                }
             },
             requiredMark: false
         }}

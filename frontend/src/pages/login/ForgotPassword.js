@@ -59,14 +59,8 @@ export const ForgotPassword = () => {
             rules={[
                 { required: true },
                 { type: "string" },
-                {
-                    min: 10,
-                    message: "${label} must have at least 10 chars"
-                },
-                {
-                    whitespace: true,
-                    message: "${label} can not be empty"
-                }
+                { whitespace: true },
+                { min: 10 },
             ]}
         >
             <Input.Password autoComplete="off" />

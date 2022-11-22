@@ -1,5 +1,5 @@
 import { useQueries, useQuery, useInfiniteQuery } from "react-query"
-import { DynamoDBClient, QueryCommand } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient, QueryCommand } from "@aws-sdk/client-dynamodb"
 
 import { config } from "config/config"
 import { getSignedClient } from "util/aws"
@@ -81,6 +81,34 @@ export function useAllPersons(limit = null, options = {}) {
     )
 }
 
+export function useAllPersonsInfinite(limit = 100, options = {}) {
+    return useInfiniteQuery(
+        ["all-persons-infinite", limit],
+        async ({ pageParam = null }) => {
+            const command = new QueryCommand({
+                TableName: config.DYNAMO_TABLE,
+                Limit: limit,
+                ScanIndexForward: false,
+                ExclusiveStartKey: pageParam,
+                IndexName: "inverted",
+                KeyConditionExpression: "SK=:SK AND begins_with(PK, :PK)",
+                ExpressionAttributeValues: {
+                    ":SK": { "S": "#METADATA" },
+                    ":PK": { "S": "#PERSON" }
+                },
+            })
+
+            const client = await getSignedClient(DynamoDBClient)
+            const response = await client.send(command)
+            return response
+        },
+        {
+            ...options,
+            getNextPageParam: (lastPage, pages) => lastPage.LastEvaluatedKey
+        }
+    )
+}
+
 export function usePersonPhotosInfinite(id, limit = 20, options = {}) {
     return useInfiniteQuery(
         ["person-photos-infinite", id, limit],
@@ -107,7 +135,7 @@ export function usePersonPhotosInfinite(id, limit = 20, options = {}) {
     )
 }
 
-export function useAllPhotosInfinite(limit = 20, options = {}) {
+export function useAllPhotosInfinite(limit = 100, options = {}) {
     return useInfiniteQuery(
         ["all-photos-infinite", limit],
         async ({ pageParam = null }) => {

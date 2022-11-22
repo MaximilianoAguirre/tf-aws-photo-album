@@ -1,9 +1,9 @@
 import React from "react"
-import { Spin, Empty, Row, Col } from 'antd'
+import { Empty, Row, Col } from 'antd'
 import { useParams } from "react-router-dom"
 
 import { usePersonPhotosInfinite } from "api/dynamo"
-import { CustomImageFromId, Frame, StickyHeader } from "components"
+import { CustomImageFromId, Frame, StickyHeader, WrappedSpinner } from "components"
 import { useImageSize } from "context"
 
 export const Person = () => {
@@ -14,21 +14,27 @@ export const Person = () => {
         return acc.concat(curr.Items)
     }, [])
 
-    if (isLoading) return <Spin />
-    if (!photos.length) return <Empty style={{ marginTop: "15px" }} description="No data" />
-
     return <>
         <StickyHeader title="Person photos" />
-        <Row
-            justify="center"
-            align="middle"
-            gutter={[15, 15]}
-            style={{ marginTop: "15px", width: "100%" }}
-        >
-            {
-                photos.map(photo => <PersonPhoto key={photo.PK.S} photo={photo} />)
-            }
-        </Row>
+        {
+            isLoading ?
+                <WrappedSpinner />
+                :
+                !photos.length ?
+                    <Empty style={{ marginTop: "15px" }} description="No data" />
+                    :
+                    <Row
+                        justify="center"
+                        align="middle"
+                        gutter={[15, 15]}
+                        style={{ marginTop: "15px", width: "100%" }}
+                    >
+                        {
+                            photos.map(photo => <PersonPhoto key={photo.PK.S} photo={photo} />)
+                        }
+                    </Row>
+
+        }
     </>
 }
 

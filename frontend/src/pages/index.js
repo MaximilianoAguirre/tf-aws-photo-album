@@ -7,5 +7,17 @@ import { ForgotPassword } from "./login/ForgotPassword"
 import { NoRole } from "./login/NoRole"
 import { AllPersons } from "./photos/Persons"
 import { Person } from "./photos/Person"
+import { AllUsers } from "./users/AllUsers"
 
-export { AllPhotos, Located, Map, Login, SetPassword, ForgotPassword, NoRole, AllPersons, Person }
+export {
+    AllPhotos,
+    Located,
+    Map,
+    Login,
+    SetPassword,
+    ForgotPassword,
+    NoRole,
+    AllPersons,
+    Person,
+    AllUsers,
+}

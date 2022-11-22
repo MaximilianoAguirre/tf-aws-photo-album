@@ -10,7 +10,7 @@ import {
   AdminRoute,
   ContributorRoute,
   ReaderRoute,
-  NoRoleRoute
+  NoRoleRoute,
 } from "components"
 
 import {
@@ -22,7 +22,8 @@ import {
   ForgotPassword,
   NoRole,
   AllPersons,
-  Person
+  Person,
+  AllUsers,
 } from "pages"
 
 import { Providers } from "context/providers_wrapper"
@@ -43,6 +44,11 @@ export const App = () => {
             <Route index element={<Navigate to="/photos" replace />} />
           </Route>
 
+          <Route path="/admin" element={<PrivateRoute><AdminRoute><MainLayout /></AdminRoute></PrivateRoute>}>
+            <Route path="users" element={<AllUsers />} />
+            <Route index element={<Navigate to="/admin/users" replace />} />
+          </Route>
+
           <Route path="/no-role" element={<PrivateRoute><LoginLayout /></PrivateRoute>} >
             <Route index element={<NoRoleRoute><NoRole /></NoRoleRoute>} />
           </Route>
@@ -54,7 +60,7 @@ export const App = () => {
           </Route>
 
         </Routes>
-        <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
+        {/* <ReactQueryDevtools initialIsOpen={false} position="bottom-right" /> */}
       </Providers>
     </Router>
   )

@@ -1,6 +1,6 @@
 import { useQueries, useQuery } from "react-query"
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
-import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3"
 
 import { config } from "config/config"
 import { getSignedClient } from "util/aws"
