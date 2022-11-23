@@ -1,11 +1,11 @@
 .fullscreen-modal .ant-modal,
 .fullscreen-modal .ant-modal-content {
-    height: 100vh;
-    width: 100vw !important;
-    margin: 0 !important;
-    top: 0 !important;
+  height: 100vh;
+  width: 100vw !important;
+  margin: 0 !important;
+  top: 0 !important;
 }
 
-.fullscreen-modal  .ant-modal-body {
-    height: calc(100vh - 110px);
+.fullscreen-modal .ant-modal-body {
+  height: calc(100vh - 110px);
 }

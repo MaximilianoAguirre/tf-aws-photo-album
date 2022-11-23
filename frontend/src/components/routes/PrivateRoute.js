@@ -1,7 +1,7 @@
-import React from "react"
-import { Navigate, useLocation } from "react-router-dom"
+import React from 'react'
+import { Navigate, useLocation } from 'react-router-dom'
 
-import { useAuth } from "context/auth"
+import { useAuth } from 'context/auth'
 
 export const PrivateRoute = ({ children }) => {
   const { isAuthenticated } = useAuth()
@@ -9,12 +9,7 @@ export const PrivateRoute = ({ children }) => {
 
   if (isAuthenticated) {
     return children
-  }
-  else {
-    return <Navigate
-      to="/login"
-      replace
-      state={{ from: location }}
-    />
+  } else {
+    return <Navigate to='/login' replace state={{ from: location }} />
   }
 }
