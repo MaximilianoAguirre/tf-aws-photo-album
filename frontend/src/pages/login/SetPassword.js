@@ -1,6 +1,6 @@
 import React from "react"
 import { Form, Input, Button } from "antd"
-import { CheckCircleOutlined } from "@ant-design/icons"
+import { CheckCircleOutlined, UserOutlined, LockOutlined } from "@ant-design/icons"
 import { Navigate } from "react-router-dom"
 
 import { useAuth, CHALLENGES } from "context/auth"
@@ -19,11 +19,9 @@ export const SetPassword = () => {
             label="User"
             name="username"
             initialValue={challengePayload.challengeParam.userAttributes.email}
-            rules={[
-                { required: true }
-            ]}
+            rules={[{ required: true }]}
         >
-            <Input disabled autoComplete="off" />
+            <Input prefix={<UserOutlined />} disabled autoComplete="off" />
         </Form.Item>
         <Form.Item
             label="New password"
@@ -36,7 +34,7 @@ export const SetPassword = () => {
                 { min: 10 },
             ]}
         >
-            <Input.Password autoComplete="off" />
+            <Input.Password prefix={<LockOutlined />} autoComplete="off" autoFocus />
         </Form.Item>
         <Form.Item
             label="Confirm password"
@@ -55,7 +53,7 @@ export const SetPassword = () => {
                 })
             ]}
         >
-            <Input.Password autoComplete="off" />
+            <Input.Password prefix={<LockOutlined />} autoComplete="off" />
         </Form.Item>
         <div
             style={{

@@ -5,14 +5,15 @@
             "Sid": "AdminManageUsers",
             "Effect": "Allow",
             "Action": [
-                "cognito-idp:AdminDeleteUser",
                 "cognito-idp:ListUsersInGroup",
                 "cognito-idp:ListGroups",
+                "cognito-idp:ListUsers",
+                "cognito-idp:AdminDeleteUser",
                 "cognito-idp:AdminCreateUser",
                 "cognito-idp:AdminRemoveUserFromGroup",
                 "cognito-idp:AdminAddUserToGroup",
-                "cognito-idp:AdminResetUserPassword",
-                "cognito-idp:ListUsers"
+                "cognito-idp:AdminListGroupsForUser",
+                "cognito-idp:AdminResetUserPassword"
             ],
             "Resource": "${user_pool_arn}"
         }

@@ -1,42 +1,74 @@
 import React from "react"
 import { Button, Layout, Menu } from 'antd'
-import { GlobalOutlined, CameraOutlined, TeamOutlined, UserOutlined, BulbOutlined } from '@ant-design/icons'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { GlobalOutlined, CameraOutlined, TeamOutlined, UserOutlined, BulbOutlined, FileAddOutlined } from '@ant-design/icons'
 
-import { useUserDrawer, useTheme } from "context"
+import { useUserDrawer, useTheme, useAuth } from "context"
 
 import logo from "images/logo.png"
 
 
 const { Sider } = Layout
 
+const reader_items = [
+    {
+        key: "/photos",
+        path: "/photos",
+        label: "All photos",
+        icon: <CameraOutlined />,
+    },
+    {
+        key: "/map",
+        path: "/map",
+        label: "Map",
+        icon: <GlobalOutlined />,
+    },
+    {
+        key: "/persons",
+        path: "/persons",
+        label: "People in photos",
+        icon: <TeamOutlined />
+    }
+]
+
+const contributor_items = [
+    {
+        type: "divider"
+    },
+    {
+        key: "/add-images",
+        path: "/contributor/add-images",
+        icon: <FileAddOutlined />,
+    },
+]
+
+const admin_items = [
+    {
+        type: "divider"
+    },
+    {
+        key: "/admin/users",
+        path: "/admin/users",
+        label: "User list",
+        icon: <UserOutlined />,
+    },
+]
+
 export const CustomSider = () => {
+    const { userRole } = useAuth()
     const { theme, setTheme } = useTheme()
     const { open } = useUserDrawer()
     const location = useLocation()
     const navigate = useNavigate()
 
     const pages = [
-        {
-            key: "/photos",
-            path: "/photos",
-            icon: <CameraOutlined />,
-        },
-        {
-            key: "/map",
-            path: "/map",
-            icon: <GlobalOutlined />,
-        },
-        {
-            key: "/persons",
-            path: "/persons",
-            icon: <TeamOutlined />
-        }
+        ...reader_items,
+        ...(userRole === "admin" || userRole === "contributor" ? contributor_items : []),
+        ...(userRole === "admin" ? admin_items : [])
     ]
 
     return <Sider
         collapsed={true}
-        width={50}
         style={{
             overflow: 'auto',
             height: '100vh',
@@ -47,8 +79,7 @@ export const CustomSider = () => {
 
         }}
     >
-        <img src={logo} alt="logo" style={{width: "46px", margin: "5px 17px"}} />
-
+        <img src={logo} alt="logo" style={{ width: "46px", margin: "5px 17px" }} />
         <Menu
             theme="dark"
             mode="inline"
@@ -57,7 +88,6 @@ export const CustomSider = () => {
             onSelect={({ key }) => navigate(key)}
             style={{ marginTop: "5px", marginLeft: "5px" }}
         />
-
         <div
             style={{
                 position: "fixed",

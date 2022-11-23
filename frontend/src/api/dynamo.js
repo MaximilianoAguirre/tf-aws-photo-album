@@ -109,6 +109,31 @@ export function useAllPersonsInfinite(limit = 100, options = {}) {
     )
 }
 
+export function usePersonPhotos(id, limit = 20, options = {}) {
+    return useQuery(
+        ["person-photos", id, limit],
+        async () => {
+            const command = new QueryCommand({
+                TableName: config.DYNAMO_TABLE,
+                Limit: limit,
+                IndexName: "GSI1",
+                KeyConditionExpression: "GSI1PK=:GSI1PK",
+                ExpressionAttributeValues: {
+                    ":GSI1PK": { "S": id }
+                },
+            })
+
+            const client = await getSignedClient(DynamoDBClient)
+            const response = await client.send(command)
+            return response
+        },
+        {
+            ...options,
+            select: response => response.Items
+        }
+    )
+}
+
 export function usePersonPhotosInfinite(id, limit = 20, options = {}) {
     return useInfiniteQuery(
         ["person-photos-infinite", id, limit],

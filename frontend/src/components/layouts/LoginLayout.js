@@ -5,6 +5,8 @@ import { HomeOutlined } from "@ant-design/icons"
 
 import { CustomFooter } from "components"
 
+import logo from "images/logo.png";
+
 const { Content } = Layout
 const { useBreakpoint } = Grid
 
@@ -21,6 +23,22 @@ export const LoginLayout = () => {
     const navigate = useNavigate()
 
     return <Layout style={{ minHeight: "100vh" }}>
+        <div
+            style={{
+                position: "fixed",
+                minWidth: "100vh",
+                width: "100%",
+                height: "100%",
+                zIndex: 0,
+                display: "block",
+                backgroundImage: `url(${logo})`,
+                backgroundRepeat: "no-repeat",
+                backgroundSize: "90vh",
+                backgroundPosition: "center",
+                filter: "blur(20px)",
+                opacity: "80%"
+            }}
+        />
         <Content
             style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: "20px 5px" }}
         >

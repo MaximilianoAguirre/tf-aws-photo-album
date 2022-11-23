@@ -14,6 +14,9 @@ export function AntdProvider({ children }) {
                 whitespace: "${label} cannot be empty",
                 string: {
                     min: "${label} must have at least ${min} chars"
+                },
+                types: {
+                    email: "Must be a valid email"
                 }
             },
             requiredMark: false

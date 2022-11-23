@@ -4,12 +4,12 @@ import Icon from "@ant-design/icons"
 
 import { ReactComponent as logo } from "images/logo.svg"
 
-export const CustomSpinner = ({ size }) => {
+export const CustomSpinner = ({ iconStyle, style }) => {
     return <Spin
-        style={{ alignSelf: "center" }}
+        style={style}
         indicator={<Icon
             component={logo}
-            style={{ fontSize: size || 48 }}
+            style={{ fontSize: 48, ...iconStyle }}
             spin
         />}
     />;
@@ -25,6 +25,6 @@ export const WrappedSpinner = () => {
             alignItems: "center"
         }}
     >
-        <CustomSpinner />
+        <CustomSpinner style={{ alignSelf: "center" }} />
     </div>
 }

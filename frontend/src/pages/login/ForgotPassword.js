@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import { Form, Input, Button, message } from "antd"
-import { RetweetOutlined, SendOutlined } from "@ant-design/icons"
+import { RetweetOutlined, SendOutlined, MailOutlined, NumberOutlined, LockOutlined } from "@ant-design/icons"
 import { Auth } from "aws-amplify"
 import { useSearchParams, useNavigate } from "react-router-dom"
 
@@ -37,20 +37,18 @@ export const ForgotPassword = () => {
             hasFeedback
             rules={[
                 { required: true },
-                { type: "email", message: "Must be a valid email" }
+                { type: "email" }
             ]}
         >
-            <Input autoComplete="email" />
+            <Input prefix={<MailOutlined />} autoComplete="email" autoFocus />
         </Form.Item>
         <Form.Item
             label="Code"
             name="code"
             hasFeedback
-            rules={[
-                { required: true }
-            ]}
+            rules={[{ required: true }]}
         >
-            <Input autoComplete="off" />
+            <Input prefix={<NumberOutlined />} autoComplete="off" />
         </Form.Item>
         <Form.Item
             label="New password"
@@ -63,7 +61,7 @@ export const ForgotPassword = () => {
                 { min: 10 },
             ]}
         >
-            <Input.Password autoComplete="off" />
+            <Input.Password prefix={<LockOutlined />} autoComplete="off" />
         </Form.Item>
         <Form.Item
             label="Confirm password"
@@ -82,7 +80,7 @@ export const ForgotPassword = () => {
                 })
             ]}
         >
-            <Input.Password autoComplete="off" />
+            <Input.Password prefix={<LockOutlined />} autoComplete="off" />
         </Form.Item>
         <div
             style={{

@@ -38,11 +38,26 @@ var INITIAL_STATE = {
     isLoggingOut: false,
     user: null,
     userId: null,
-    userRoles: null,
+    userRole: null,
     isChallenged: false,
     challengePayload: null,
     challenge: null,
     isChangingPassword: false,
+}
+
+export const ROLES = {
+    admin: "admin",
+    contributor: "contributor",
+    reader: "reader",
+    none: "none"
+}
+
+export const get_user_roles = (user_roles) => {
+    if (!user_roles) return ROLES.none
+    if (user_roles.includes(ROLES.admin)) return ROLES.admin
+    if (user_roles.includes(ROLES.contributor)) return ROLES.contributor
+    if (user_roles.includes(ROLES.reader)) return ROLES.reader
+    return ROLES.none
 }
 
 function reducer(state, action) {
@@ -56,6 +71,7 @@ function reducer(state, action) {
                 user: action.payload,
                 userId: action.payload.attributes.email,
                 userRoles: action.payload.signInUserSession.idToken.payload["cognito:groups"],
+                userRole: get_user_roles(action.payload.signInUserSession.idToken.payload["cognito:groups"]),
                 isChallenged: false,
                 challengePayload: null,
                 challenge: null,
@@ -69,6 +85,7 @@ function reducer(state, action) {
                 user: null,
                 userId: null,
                 userRoles: null,
+                userRole: null,
                 isChallenged: false,
                 challengePayload: null,
                 challenge: null,

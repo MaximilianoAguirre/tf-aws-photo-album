@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom"
 import InfiniteScroll from 'react-infinite-scroll-component'
 
 import { useAllPersonsInfinite } from "api/dynamo"
-import { StickyHeader, WrappedSpinner, CustomSpinner } from "components"
+import { StickyHeader, WrappedSpinner, CustomSpinner, PersonAvatar } from "components"
 
 export const AllPersons = () => {
     const { data, isLoading, fetchNextPage, hasNextPage } = useAllPersonsInfinite()
@@ -48,8 +48,8 @@ export const AllPersons = () => {
                                 ]}
                             >
                                 <List.Item.Meta
-                                    avatar={<Avatar src="https://joeschmoe.io/api/v1/random" />}
                                     title={item.PK.S.replace('#PERSON#', '')}
+                                    avatar={<PersonAvatar person_id={item.PK.S} />}
                                 />
                             </List.Item>}
                         />

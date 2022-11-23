@@ -1,6 +1,6 @@
 import React from "react"
 import { Form, Input, Button } from "antd"
-import { LoginOutlined, QuestionCircleOutlined } from "@ant-design/icons"
+import { LoginOutlined, QuestionCircleOutlined, UserOutlined, LockOutlined } from "@ant-design/icons"
 import { useNavigate } from "react-router-dom"
 
 import { useAuth } from "context/auth"
@@ -21,10 +21,10 @@ export const Login = () => {
             hasFeedback
             rules={[
                 { required: true },
-                { type: "email", message: "Must be a valid email" }
+                { type: "email" }
             ]}
         >
-            <Input autoComplete="email" />
+            <Input prefix={<UserOutlined />} autoComplete="email" autoFocus />
         </Form.Item>
         <Form.Item
             label="Password"
@@ -34,7 +34,7 @@ export const Login = () => {
                 { required: true }
             ]}
         >
-            <Input.Password autoComplete="password" />
+            <Input.Password prefix={<LockOutlined />} autoComplete="password" />
         </Form.Item>
         <div
             style={{

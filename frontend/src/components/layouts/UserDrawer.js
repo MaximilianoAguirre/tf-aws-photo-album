@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Drawer, Button, Modal, Form, Input } from 'antd'
+import { Drawer, Button, Modal, Form, Input, Tag } from 'antd'
 import { CheckCircleOutlined, CloseCircleOutlined, LogoutOutlined, EditOutlined } from "@ant-design/icons"
 
 import { useAuth, useUserDrawer } from "context"
@@ -8,11 +8,11 @@ import { useAuth, useUserDrawer } from "context"
 export const UserDrawer = () => {
     const [form] = Form.useForm()
     const { opened, close } = useUserDrawer()
-    const { userId, logout, isLoggingOut, changePassword, isChangingPassword } = useAuth()
+    const { userId, logout, isLoggingOut, changePassword, isChangingPassword, userRole } = useAuth()
     const [changePwdModal, setChangePwdModal] = useState(false)
 
     return <Drawer
-        title={userId}
+        title={<>{userId} <Tag>{userRole}</Tag></>}
         open={opened}
         onClose={() => close()}
         footer={<>
@@ -74,9 +74,7 @@ export const UserDrawer = () => {
                     label="Old password"
                     name="old_password"
                     hasFeedback
-                    rules={[
-                        { required: true },
-                    ]}
+                    rules={[{ required: true },]}
                 >
                     <Input.Password autoComplete="off" />
                 </Form.Item>

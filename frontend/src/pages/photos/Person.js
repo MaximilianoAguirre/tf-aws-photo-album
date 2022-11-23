@@ -1,21 +1,34 @@
-import React from "react"
-import { Empty, Row, Col } from 'antd'
+import React, { useState } from "react"
+import { Empty, Row, Col, Switch } from 'antd'
+import { SmileOutlined } from "@ant-design/icons"
 import { useParams } from "react-router-dom"
+import InfiniteScroll from 'react-infinite-scroll-component'
 
 import { usePersonPhotosInfinite } from "api/dynamo"
-import { CustomImageFromId, Frame, StickyHeader, WrappedSpinner } from "components"
+import { CustomImageFromId, Frame, StickyHeader, WrappedSpinner, CustomSpinner } from "components"
 import { useImageSize } from "context"
 
 export const Person = () => {
     const { id } = useParams()
-    const { data, isLoading } = usePersonPhotosInfinite(id)
+    const { data, isLoading, hasNextPage, fetchNextPage } = usePersonPhotosInfinite(id)
+    const [frameVisible, setFrameVisible] = useState(false)
 
     const photos = data?.pages.reduce((acc, curr) => {
         return acc.concat(curr.Items)
     }, [])
 
     return <>
-        <StickyHeader title="Person photos" />
+        <StickyHeader title="Person photos">
+            <Col flex="50px">
+                <Switch
+                    type="primary"
+                    checkedChildren={<SmileOutlined />}
+                    unCheckedChildren={<SmileOutlined />}
+                    checked={frameVisible}
+                    onChange={() => setFrameVisible(state => !state)}
+                />
+            </Col>
+        </StickyHeader>
         {
             isLoading ?
                 <WrappedSpinner />
@@ -23,22 +36,31 @@ export const Person = () => {
                 !photos.length ?
                     <Empty style={{ marginTop: "15px" }} description="No data" />
                     :
-                    <Row
-                        justify="center"
-                        align="middle"
-                        gutter={[15, 15]}
-                        style={{ marginTop: "15px", width: "100%" }}
+                    <InfiniteScroll
+                        style={{ width: "100%", padding: "5px" }}
+                        height="calc(100vh - 56px)"
+                        dataLength={photos.length}
+                        hasChildren={photos.length}
+                        hasMore={hasNextPage}
+                        next={() => fetchNextPage()}
+                        loader={<CustomSpinner />}
                     >
-                        {
-                            photos.map(photo => <PersonPhoto key={photo.PK.S} photo={photo} />)
-                        }
-                    </Row>
-
+                        <Row
+                            justify="center"
+                            align="middle"
+                            gutter={[15, 15]}
+                            style={{ marginTop: "15px", width: "100%" }}
+                        >
+                            {
+                                photos.map(photo => <PersonPhoto key={photo.PK.S} photo={photo} frameVisible={frameVisible} />)
+                            }
+                        </Row>
+                    </InfiniteScroll>
         }
     </>
 }
 
-const PersonPhoto = ({ photo }) => {
+const PersonPhoto = ({ photo, frameVisible }) => {
     const { current: width } = useImageSize()
 
     const box = JSON.parse(photo.bounding_box.S)
@@ -62,6 +84,8 @@ const PersonPhoto = ({ photo }) => {
                 left: 0,
             }}
         />
-        <Frame width={width} {...boundaries} />
+        {
+            frameVisible && <Frame width={width} {...boundaries} />
+        }
     </Col>
 }

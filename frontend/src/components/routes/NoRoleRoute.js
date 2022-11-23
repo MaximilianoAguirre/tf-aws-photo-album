@@ -1,12 +1,12 @@
 import React from "react"
 import { Navigate } from "react-router-dom"
 
-import { useAuth } from "context/auth"
+import { useAuth, ROLES } from "context/auth"
 
 export const NoRoleRoute = ({ children }) => {
-  const { userRoles } = useAuth()
+  const { userRole } = useAuth()
 
-  if (!userRoles) {
+  if (userRole === ROLES.none) {
     return children
   }
   else {

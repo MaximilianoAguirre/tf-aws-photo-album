@@ -6,6 +6,7 @@ import { MainLayout } from "./layouts/MainLayout"
 import { LoginLayout } from "./layouts/LoginLayout"
 import { UserButton } from "./layouts/UserButton"
 import { CustomSpinner, WrappedSpinner } from "./layouts/CustomSpinner"
+import { PersonAvatar } from "./image/PersonAvatar"
 
 import { CustomImage, CustomImageFromId } from "./image/Image"
 import { ImageDrawer } from "./image/ImageDrawer"
@@ -29,6 +30,7 @@ export {
     UserButton,
     CustomSpinner,
     WrappedSpinner,
+    PersonAvatar,
     UserDrawer,
     MainLayout,
     LoginLayout,
