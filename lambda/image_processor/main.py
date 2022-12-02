@@ -38,8 +38,17 @@ def create_dynamo_item(key):
 def set_image_size_and_date(image, key):
     # Get date
     img = pil_image.open(image)
-    img_date = img._getexif()[36867]
-    img_timestamp = datetime.strptime(img_date, "%Y:%m:%d %H:%M:%S").strftime("%s")
+    img_exif = img._getexif()
+    if img_exif is not None and 36867 in img_exif:
+        img_timestamp = datetime.strptime(
+            img_exif[36867], "%Y:%m:%d %H:%M:%S"
+        ).strftime("%s")
+    else:
+        modified = int(os.path.getmtime(image))
+        created = int(os.path.getctime(image))
+        img_timestamp = datetime.fromtimestamp(
+            modified if modified < created else created
+        ).strftime("%s")
 
     # Get size
     img = ImageOps.exif_transpose(img)
@@ -167,6 +176,7 @@ def set_object_type(key):
     )
 
     return content_type
+
 
 def lambda_handler(event, context):
     print(event)
