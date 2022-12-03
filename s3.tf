@@ -11,6 +11,19 @@ module "photo_bucket" {
   force_destroy = true
 }
 
+# TODO: filter CORS domains
+resource "aws_s3_bucket_cors_configuration" "photo_bucket" {
+  bucket = module.photo_bucket.s3_bucket_id
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["PUT", "POST", "HEAD", "GET", "DELETE"]
+    allowed_origins = ["*"]
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
+  }
+}
+
 module "photo_assets_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "3.4.0"
