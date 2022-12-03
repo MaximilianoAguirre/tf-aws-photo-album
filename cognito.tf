@@ -12,10 +12,23 @@ resource "aws_cognito_user_pool" "pool" {
     allow_admin_create_user_only = true
 
     invite_message_template {
-      email_message = "Your username is {username} and temporary password is {####}"
       sms_message   = "Your username is {username} and temporary password is {####}"
       email_subject = "Photo album temporary password"
+
+      email_message = templatefile("${path.module}/cognito/invitation.html", {
+        name = "${local.dash_prefix}photo-bucket"
+        url  = var.route53_public_zone_id == null ? aws_cloudfront_distribution.frontend_cloudfront.domain_name : "${var.route53_subdomain}${data.aws_route53_zone.public_zone[0].name}"
+      })
     }
+  }
+
+  verification_message_template {
+    email_subject = "Photo album reset password code"
+
+    email_message = templatefile("${path.module}/cognito/reset.html", {
+      name = "${local.dash_prefix}photo-bucket"
+      url  = var.route53_public_zone_id == null ? aws_cloudfront_distribution.frontend_cloudfront.domain_name : "${var.route53_subdomain}${data.aws_route53_zone.public_zone[0].name}"
+    })
   }
 
   password_policy {
