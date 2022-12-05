@@ -13,9 +13,20 @@
                 "cognito-idp:AdminRemoveUserFromGroup",
                 "cognito-idp:AdminAddUserToGroup",
                 "cognito-idp:AdminListGroupsForUser",
-                "cognito-idp:AdminResetUserPassword"
+                "cognito-idp:AdminResetUserPassword",
+                "cognito-idp:AdminDisableUser",
+                "cognito-idp:AdminEnableUser"
             ],
             "Resource": "${user_pool_arn}"
+        },
+        {
+            "Sid": "CwMetrics",
+            "Effect": "Allow",
+            "Action": [
+                "cloudwatch:GetMetricData",
+                "cloudwatch:GetMetricWidgetImage"
+            ],
+            "Resource": "*"
         }
     ]
 }

@@ -8,7 +8,7 @@ resource "aws_dynamodb_table" "photo_tracker" {
   range_key        = "SK"
   stream_enabled   = true
   stream_view_type = "NEW_AND_OLD_IMAGES"
-  tags             = var.tags
+  tags             = local.tags
 
   global_secondary_index {
     name            = "inverted"

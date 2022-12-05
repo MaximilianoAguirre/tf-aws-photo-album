@@ -4,7 +4,7 @@ resource "aws_cloudfront_distribution" "frontend_cloudfront" {
   comment             = "Cloudfront distribution serving photo album frontend"
   default_root_object = "index.html"
   price_class         = "PriceClass_100"
-  tags                = var.tags
+  tags                = local.tags
   aliases             = var.route53_public_zone_id == null ? [] : ["${var.route53_subdomain}${data.aws_route53_zone.public_zone[0].name}"]
 
   origin {

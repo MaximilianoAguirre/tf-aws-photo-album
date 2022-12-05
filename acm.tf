@@ -3,7 +3,7 @@ resource "aws_acm_certificate" "cert" {
 
   domain_name       = "${var.route53_subdomain}${data.aws_route53_zone.public_zone[0].name}"
   validation_method = "DNS"
-  tags              = var.tags
+  tags              = local.tags
 
   lifecycle {
     create_before_destroy = true

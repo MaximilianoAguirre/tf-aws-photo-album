@@ -3,7 +3,7 @@
 ########################################################
 resource "aws_iam_role" "authenticated" {
   name = "${local.dash_prefix}photo-bucket-authenticated"
-  tags = var.tags
+  tags = local.tags
 
   assume_role_policy = templatefile("${path.module}/iam/cognito_idp_assume.json", {
     aud = aws_cognito_identity_pool.identitypool.id
@@ -13,7 +13,7 @@ resource "aws_iam_role" "authenticated" {
 
 resource "aws_iam_role" "admin" {
   name = "${local.dash_prefix}photo-bucket-admin"
-  tags = var.tags
+  tags = local.tags
 
   assume_role_policy = templatefile("${path.module}/iam/cognito_idp_assume.json", {
     aud = aws_cognito_identity_pool.identitypool.id
@@ -23,7 +23,7 @@ resource "aws_iam_role" "admin" {
 
 resource "aws_iam_role" "contributor" {
   name = "${local.dash_prefix}photo-bucket-contributor"
-  tags = var.tags
+  tags = local.tags
 
   assume_role_policy = templatefile("${path.module}/iam/cognito_idp_assume.json", {
     aud = aws_cognito_identity_pool.identitypool.id
@@ -33,7 +33,7 @@ resource "aws_iam_role" "contributor" {
 
 resource "aws_iam_role" "reader" {
   name = "${local.dash_prefix}photo-bucket-reader"
-  tags = var.tags
+  tags = local.tags
 
   assume_role_policy = templatefile("${path.module}/iam/cognito_idp_assume.json", {
     aud = aws_cognito_identity_pool.identitypool.id
@@ -43,7 +43,7 @@ resource "aws_iam_role" "reader" {
 
 resource "aws_iam_role" "unauthenticated" {
   name = "${local.dash_prefix}photo-bucket-unauthenticated"
-  tags = var.tags
+  tags = local.tags
 
   assume_role_policy = templatefile("${path.module}/iam/cognito_idp_assume.json", {
     aud = aws_cognito_identity_pool.identitypool.id
@@ -56,7 +56,7 @@ resource "aws_iam_role" "unauthenticated" {
 ########################################################
 resource "aws_iam_policy" "reader" {
   name = "${local.dash_prefix}photo-bucket-reader"
-  tags = var.tags
+  tags = local.tags
 
   policy = templatefile("${path.module}/iam/reader.json", {
     photo_bucket        = module.photo_bucket.s3_bucket_arn
@@ -82,7 +82,7 @@ resource "aws_iam_role_policy_attachment" "reader_read" {
 
 resource "aws_iam_policy" "contributor" {
   name = "${local.dash_prefix}photo-bucket-contributor"
-  tags = var.tags
+  tags = local.tags
 
   policy = templatefile("${path.module}/iam/contributor.json", {
     bucket_arn = module.photo_bucket.s3_bucket_arn
@@ -101,7 +101,7 @@ resource "aws_iam_role_policy_attachment" "contributor_write" {
 
 resource "aws_iam_policy" "admin" {
   name = "${local.dash_prefix}photo-bucket-admin"
-  tags = var.tags
+  tags = local.tags
 
   policy = templatefile("${path.module}/iam/admin.json", {
     user_pool_arn = aws_cognito_user_pool.pool.arn

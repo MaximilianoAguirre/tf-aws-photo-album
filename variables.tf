@@ -18,6 +18,12 @@ variable "tags" {
   description = "Tags to apply to all resources"
 }
 
+locals {
+  tags = merge(var.tags, {
+    application = "photo-album-app"
+  })
+}
+
 #########################################################################################
 # COGNITO
 #########################################################################################

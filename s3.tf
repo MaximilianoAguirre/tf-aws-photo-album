@@ -7,7 +7,7 @@ module "photo_bucket" {
 
   bucket_prefix = "${local.dash_prefix}photo-bucket-"
   acl           = "private"
-  tags          = var.tags
+  tags          = local.tags
   force_destroy = true
 }
 
@@ -30,7 +30,7 @@ module "photo_assets_bucket" {
 
   bucket_prefix = "${local.dash_prefix}photo-assets-bucket-"
   acl           = "private"
-  tags          = var.tags
+  tags          = local.tags
   force_destroy = true
 }
 
@@ -60,7 +60,7 @@ module "web_bucket" {
 
   bucket_prefix = "${local.dash_prefix}web-host-bucket-"
   acl           = "private"
-  tags          = var.tags
+  tags          = local.tags
   force_destroy = true
 }
 
@@ -104,8 +104,9 @@ resource "aws_s3_object" "static_frontend_objects" {
   bucket       = module.web_bucket.s3_bucket_id
   key          = each.key
   source       = "${local.frontend_build_path}/${each.key}"
-  etag         = filemd5("${local.frontend_build_path}/${each.key}")
+  source_hash  = filemd5("${local.frontend_build_path}/${each.key}")
   content_type = lookup(local.mime_types, regex("\\.[^.]+$", each.value), null)
+  tags         = local.tags
 }
 
 resource "aws_s3_object" "static_frontend_config_file" {
@@ -114,4 +115,5 @@ resource "aws_s3_object" "static_frontend_config_file" {
   content      = local.frontend_config
   etag         = md5(local.frontend_config)
   content_type = "application/javascript"
+  tags         = local.tags
 }

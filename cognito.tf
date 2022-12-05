@@ -6,7 +6,7 @@ resource "aws_cognito_user_pool" "pool" {
   mfa_configuration        = "OFF"
   username_attributes      = ["email"]
   auto_verified_attributes = ["email"]
-  tags                     = var.tags
+  tags                     = local.tags
 
   admin_create_user_config {
     allow_admin_create_user_only = true
@@ -54,7 +54,7 @@ resource "aws_cognito_user_pool_client" "poolclient" {
 resource "aws_cognito_identity_pool" "identitypool" {
   identity_pool_name               = "${local.dash_prefix}photo-bucket"
   allow_unauthenticated_identities = false
-  tags                             = var.tags
+  tags                             = local.tags
 
   cognito_identity_providers {
     client_id               = aws_cognito_user_pool_client.poolclient.id

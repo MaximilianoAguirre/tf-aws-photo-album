@@ -1,6 +1,6 @@
 resource "aws_sns_topic" "photo_album_create" {
   name = "${local.dash_prefix}photo-album-create"
-  tags = var.tags
+  tags = local.tags
 }
 
 resource "aws_sns_topic_policy" "photo_album_create" {

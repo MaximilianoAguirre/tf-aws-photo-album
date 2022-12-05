@@ -19,6 +19,7 @@ module "image_processor" {
   source_path                       = "${path.module}/lambda/image_processor"
   artifacts_dir                     = "${path.module}/builds"
   layers                            = [aws_lambda_layer_version.python38_image_processor.arn]
+  tags                              = local.tags
   publish                           = true
   recreate_missing_package          = false
   ignore_source_code_hash           = true
@@ -75,6 +76,7 @@ module "image_processor_rekognition" {
   runtime                           = "python3.8"
   source_path                       = "${path.module}/lambda/image_rekognition"
   artifacts_dir                     = "${path.module}/builds"
+  tags                              = local.tags
   publish                           = true
   recreate_missing_package          = false
   ignore_source_code_hash           = true
@@ -138,6 +140,7 @@ module "image_deletion" {
   runtime                           = "python3.8"
   source_path                       = "${path.module}/lambda/image_deletion"
   artifacts_dir                     = "${path.module}/builds"
+  tags                              = local.tags
   publish                           = true
   recreate_missing_package          = false
   ignore_source_code_hash           = true
