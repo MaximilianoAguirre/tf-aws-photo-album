@@ -9,8 +9,8 @@ import { useImageSize } from 'context'
 
 export const Located = () => {
   let { geohash } = useParams()
-  const { current: width } = useImageSize()
-  const { data, isLoading, fetchNextPage, hasNextPage } = useLocatedPhotosInfinite(geohash)
+  const { current: width, size_to_limit } = useImageSize()
+  const { data, isLoading, fetchNextPage, hasNextPage } = useLocatedPhotosInfinite(geohash, { limit: size_to_limit(width) })
 
   // Process all pages returned by DynamoDB and create a single list of photos
   const photos = data?.pages.reduce((acc, curr) => {
@@ -35,7 +35,7 @@ export const Located = () => {
           next={() => fetchNextPage()}
           loader={<CustomSpinner />}
         >
-          <Row justify='center' align='middle' gutter={[15, 15]} style={{ marginTop: '15px', width: '100%' }}>
+          <Row justify='center' align='bottom' gutter={[15, 15]} style={{ marginTop: '15px', width: '100%' }}>
             {photos.map((photo) => (
               <Col key={photo.name.S}>
                 <CustomImage photo={photo} width={width} />

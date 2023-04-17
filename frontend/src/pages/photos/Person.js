@@ -44,7 +44,7 @@ export const Person = () => {
           next={() => fetchNextPage()}
           loader={<CustomSpinner />}
         >
-          <Row justify='center' align='middle' gutter={[15, 15]} style={{ marginTop: '15px', width: '100%' }}>
+          <Row justify='center' align='bottom' gutter={[15, 15]} style={{ marginTop: '15px', width: '100%' }}>
             {photos.map((photo) => (
               <PersonPhoto key={photo.PK.S} photo={photo} frameVisible={frameVisible} />
             ))}
@@ -77,7 +77,7 @@ const PersonPhoto = ({ photo, frameVisible }) => {
           left: 0
         }}
       />
-      {frameVisible && <Frame width={width} {...boundaries} />}
+      {frameVisible && <Frame {...boundaries} />}
     </Col>
   )
 }

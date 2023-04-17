@@ -6,7 +6,9 @@ import {
   AdminDeleteUserCommand,
   AdminCreateUserCommand,
   AdminRemoveUserFromGroupCommand,
-  AdminAddUserToGroupCommand
+  AdminAddUserToGroupCommand,
+  AdminEnableUserCommand,
+  AdminDisableUserCommand
 } from '@aws-sdk/client-cognito-identity-provider'
 
 import { config } from 'config/config'
@@ -83,6 +85,32 @@ export function useCreateUser(options = {}) {
         }
       ],
       DesiredDeliveryMediums: ['EMAIL']
+    })
+
+    const client = await getSignedClient(CognitoIdentityProviderClient)
+    const response = await client.send(command)
+    return response
+  }, options)
+}
+
+export function useEnableUser(options = {}) {
+  return useMutation(async (username) => {
+    const command = new AdminEnableUserCommand({
+      UserPoolId: config.COGNITO_USER_POOL,
+      Username: username
+    })
+
+    const client = await getSignedClient(CognitoIdentityProviderClient)
+    const response = await client.send(command)
+    return response
+  }, options)
+}
+
+export function useDisableUser(options = {}) {
+  return useMutation(async (username) => {
+    const command = new AdminDisableUserCommand({
+      UserPoolId: config.COGNITO_USER_POOL,
+      Username: username
     })
 
     const client = await getSignedClient(CognitoIdentityProviderClient)

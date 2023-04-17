@@ -1,8 +1,8 @@
 import React, { useState, forwardRef, useImperativeHandle } from 'react'
-import { Drawer, Spin, Button, Row, Col } from 'antd'
+import { Drawer, Button, Row, Col } from 'antd'
 import { useNavigate } from 'react-router-dom'
 
-import { CustomImage } from 'components'
+import { CustomImage, WrappedSpinner } from 'components'
 import { useLocatedPhotos } from 'api/dynamo'
 
 export const ImageDrawer = forwardRef((props, ref) => {
@@ -27,7 +27,7 @@ export const ImageDrawer = forwardRef((props, ref) => {
   return (
     <Drawer title={<Button onClick={() => navigate(`/located/${hash}`)}>See all</Button>} placement='right' onClose={onClose} open={open}>
       {isLoading ? (
-        <Spin />
+        <WrappedSpinner />
       ) : (
         <Row gutter={[5, 5]} justify='center' align='middle'>
           {data?.map((photo) => (

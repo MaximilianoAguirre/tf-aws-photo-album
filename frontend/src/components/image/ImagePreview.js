@@ -9,6 +9,8 @@ export const ImagePreview = forwardRef(({ photo }, ref) => {
   const [open, setOpen] = useState(false)
   const { data: photoUrl } = useOriginalPhotoURL(photo.name.S)
 
+  // console.log(photo)
+
   useImperativeHandle(ref, () => ({
     open() {
       setOpen(true)
@@ -17,14 +19,21 @@ export const ImagePreview = forwardRef(({ photo }, ref) => {
 
   return (
     <Modal title={photo.name.S} open={open} onCancel={() => setOpen(false)} wrapClassName='fullscreen-modal'>
-      <Image
-        width={photo.width?.N}
-        height={photo.height?.N}
-        src={photoUrl}
-        preview={false}
-        fallback={fallback_image}
-        placeholder={'blurhash' in photo && <Blurhash hash={photo.blurhash.S} width={photo.width?.N} height={photo.height?.N} />}
-      />
+      <div
+        style={{
+          width: photo.width?.N,
+          height: photo.height?.N
+        }}
+      >
+        <Image
+          width={photo.width?.N}
+          height={photo.height?.N}
+          src={photoUrl}
+          preview={false}
+          fallback={fallback_image}
+          placeholder={'blurhash' in photo && <Blurhash hash={photo.blurhash.S} width={photo.width?.N} height={photo.height?.N} />}
+        />
+      </div>
     </Modal>
   )
 })

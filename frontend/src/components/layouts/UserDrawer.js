@@ -1,26 +1,36 @@
 import React, { useState } from 'react'
-import { Drawer, Button, Modal, Form, Input, Tag } from 'antd'
-import { CheckCircleOutlined, CloseCircleOutlined, LogoutOutlined, EditOutlined } from '@ant-design/icons'
+import { Drawer, Button, Modal, Form, Input, Tag, List, Typography, Switch, Divider } from 'antd'
+import { CheckCircleOutlined, CloseCircleOutlined, LogoutOutlined, EditOutlined, BulbOutlined } from '@ant-design/icons'
 
-import { useAuth, useUserDrawer } from 'context'
+import { useAuth, useUserDrawer, useTheme } from 'context'
+
+const { Text } = Typography
 
 export const UserDrawer = () => {
   const [form] = Form.useForm()
   const { opened, close } = useUserDrawer()
-  const { userId, logout, isLoggingOut, changePassword, isChangingPassword, userRole } = useAuth()
+  const { theme, setTheme } = useTheme()
+  const { userId, logout, isLoggingOut, changePassword, isChangingPassword, userRole, user } = useAuth()
   const [changePwdModal, setChangePwdModal] = useState(false)
 
   return (
     <Drawer
-      title={
-        <>
-          {userId} <Tag>{userRole}</Tag>
-        </>
-      }
+      title={userId}
       open={opened}
       onClose={() => close()}
       footer={
         <>
+          <div style={{ marginTop: '10px' }}>
+            <Text>Dark mode:</Text>
+            <Switch
+              style={{ marginLeft: '15px' }}
+              checked={theme === 'light'}
+              onChange={(checked) => setTheme(checked ? 'light' : 'dark')}
+              checkedChildren={<BulbOutlined />}
+              unCheckedChildren={<BulbOutlined />}
+            />
+          </div>
+          <Divider />
           <Button onClick={() => setChangePwdModal(true)} style={{ width: '100%', marginBottom: '10px' }} icon={<EditOutlined />}>
             Change my password
           </Button>
@@ -30,6 +40,21 @@ export const UserDrawer = () => {
         </>
       }
     >
+      <List
+        itemLayout='vertical'
+        renderItem={(item) => <List.Item>{item}</List.Item>}
+        dataSource={[
+          <>
+            ID:{' '}
+            <Text italic copyable>
+              {user.username}
+            </Text>
+          </>,
+          <>
+            Role: <Tag color='blue'>{capitalize(userRole)}</Tag>
+          </>
+        ]}
+      />
       <Modal
         title='Change my password'
         okText='Change it'
@@ -99,4 +124,8 @@ export const UserDrawer = () => {
       </Modal>
     </Drawer>
   )
+}
+
+function capitalize(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase()
 }

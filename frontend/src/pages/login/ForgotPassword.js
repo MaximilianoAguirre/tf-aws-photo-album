@@ -13,6 +13,7 @@ export const ForgotPassword = () => {
   const [changingPassword, setChangingPassword] = useState(false)
 
   const initial_username = searchParams.get('username')
+  const code = searchParams.get('code')
 
   return (
     <Form
@@ -33,7 +34,7 @@ export const ForgotPassword = () => {
       <Form.Item label='Email' name='username' initialValue={initial_username} hasFeedback rules={[{ required: true }, { type: 'email' }]}>
         <Input prefix={<MailOutlined />} autoComplete='email' autoFocus />
       </Form.Item>
-      <Form.Item label='Code' name='code' hasFeedback rules={[{ required: true }]}>
+      <Form.Item label='Code' name='code' initialValue={code} hasFeedback rules={[{ required: true }]}>
         <Input prefix={<NumberOutlined />} autoComplete='off' />
       </Form.Item>
       <Form.Item

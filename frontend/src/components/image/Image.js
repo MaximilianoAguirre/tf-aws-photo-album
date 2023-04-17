@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, useMemo } from 'react'
 import { Image } from 'antd'
 import { Blurhash } from 'react-blurhash'
 
@@ -8,7 +8,7 @@ import { fallback_image } from 'util/fallback_image'
 import { ImagePreview } from 'components'
 
 const max_height = (width) => {
-  return 1.5 * width
+  return 0.7 * width
 }
 
 export const CustomImage = ({ photo, width, style, rootClassName }) => {
@@ -16,16 +16,21 @@ export const CustomImage = ({ photo, width, style, rootClassName }) => {
   const { data: photoUrl } = useScaledPhotoURL(photo.name.S, width)
   const { data: OriginalPhotoUrl } = useOriginalPhotoURL(photo.name.S, width)
 
-  const src = photo.resized?.BOOL ? photoUrl : OriginalPhotoUrl
-  let height, final_width
+  const { height, final_width } = useMemo(() => {
+    let height, final_width
 
-  if (photo.height?.N > max_height(photo.width?.N)) {
-    height = max_height(width)
-    final_width = (height / photo.height?.N) * photo.width?.N
-  } else {
-    height = (width / photo.width?.N) * photo.height?.N
-    final_width = width
-  }
+    if (photo.height?.N > max_height(photo.width?.N)) {
+      height = max_height(width)
+      final_width = (height / photo.height?.N) * photo.width?.N
+    } else {
+      height = (width / photo.width?.N) * photo.height?.N
+      final_width = width
+    }
+
+    return { height, final_width }
+  }, [photo, width])
+
+  const src = photo.resized?.BOOL ? photoUrl : OriginalPhotoUrl
 
   return (
     <>

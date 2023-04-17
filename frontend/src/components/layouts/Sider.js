@@ -1,9 +1,19 @@
 import React from 'react'
-import { Button, Layout, Menu } from 'antd'
+import { Button, Layout, Menu, Badge } from 'antd'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { GlobalOutlined, CameraOutlined, TeamOutlined, UserOutlined, BulbOutlined, FileAddOutlined } from '@ant-design/icons'
+import { MdOutlineVideoCameraFront } from 'react-icons/md'
 
-import { useUserDrawer, useTheme, useAuth } from 'context'
+import {
+  GlobalOutlined,
+  CameraOutlined,
+  TeamOutlined,
+  UserOutlined,
+  FileAddOutlined,
+  LineChartOutlined,
+  DollarCircleOutlined
+} from '@ant-design/icons'
+
+import { useUserDrawer, useAuth } from 'context'
 
 import logo from 'images/logo.png'
 
@@ -26,7 +36,7 @@ const reader_items = [
     key: '/persons',
     path: '/persons',
     label: 'People in photos',
-    icon: <TeamOutlined />
+    icon: <MdOutlineVideoCameraFront size={18} />
   }
 ]
 
@@ -35,8 +45,9 @@ const contributor_items = [
     type: 'divider'
   },
   {
-    key: '/add-images',
-    path: '/contributor/add-images',
+    key: '/contributor/upload',
+    path: '/contributor/upload',
+    label: 'Upload',
     icon: <FileAddOutlined />
   }
 ]
@@ -49,13 +60,24 @@ const admin_items = [
     key: '/admin/users',
     path: '/admin/users',
     label: 'User list',
-    icon: <UserOutlined />
+    icon: <TeamOutlined />
+  },
+  {
+    key: '/admin/usage',
+    path: '/admin/usage',
+    label: 'Usage',
+    icon: <LineChartOutlined />
+  },
+  {
+    key: '/admin/budget',
+    path: '/admin/budget',
+    label: 'Budget',
+    icon: <DollarCircleOutlined />
   }
 ]
 
 export const CustomSider = () => {
   const { userRole } = useAuth()
-  const { theme, setTheme } = useTheme()
   const { open } = useUserDrawer()
   const location = useLocation()
   const navigate = useNavigate()
@@ -95,12 +117,6 @@ export const CustomSider = () => {
           padding: '5px'
         }}
       >
-        <Button
-          icon={<BulbOutlined />}
-          style={{ marginBottom: '5px', width: '100%' }}
-          type={theme === 'dark' ? 'default' : 'primary'}
-          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-        />
         <Button icon={<UserOutlined />} type='primary' onClick={() => open()} style={{ width: '100%' }} />
       </div>
     </Sider>

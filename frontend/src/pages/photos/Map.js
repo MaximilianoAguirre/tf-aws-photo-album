@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { MapContainer, TileLayer, Marker } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, ZoomControl } from 'react-leaflet'
 import Leaflet from 'leaflet'
 import 'leaflet-loading'
 
@@ -53,16 +53,20 @@ export const Map = () => {
     }
   }, [loading])
 
+  const bounds = new Leaflet.latLngBounds(new Leaflet.LatLng(Number(90), Number(-180)), new Leaflet.LatLng(Number(-90), Number(180)))
+
   return (
     <>
       <MapContainer
         center={[-41.1627, -71.4826]}
         zoom={4}
+        zoomControl={false}
         minZoom={4}
         scrollWheelZoom={true}
         loadingControl={true}
         style={{ height: '300px', minHeight: '100vh' }}
         ref={setMap}
+        maxBounds={bounds}
         whenReady={(e) => {
           const map = e.target
 
@@ -97,6 +101,7 @@ export const Map = () => {
         <TileLayer
           attribution='&copy; <a target="_blank" href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | <a target="_blank" href="https://www.linkedin.com/in/MaximilianoAguirre/">Maxi Aguirre</a>'
           url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+          noWrap={true}
         />
         {markers.map((marker) => {
           // Using free icons API provided by google
@@ -119,6 +124,7 @@ export const Map = () => {
             />
           )
         })}
+        <ZoomControl position='topright' />
       </MapContainer>
       <ImageDrawer ref={drawer} />
     </>

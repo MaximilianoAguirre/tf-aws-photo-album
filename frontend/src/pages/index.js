@@ -8,5 +8,7 @@ import { NoRole } from './login/NoRole'
 import { AllPersons } from './photos/Persons'
 import { Person } from './photos/Person'
 import { AllUsers } from './users/AllUsers'
+import { UploadFiles } from './photos/Upload'
+import { Usage } from './usage/Usage'
 
-export { AllPhotos, Located, Map, Login, SetPassword, ForgotPassword, NoRole, AllPersons, Person, AllUsers }
+export { AllPhotos, Located, Map, Login, SetPassword, ForgotPassword, NoRole, AllPersons, Person, AllUsers, UploadFiles, Usage }

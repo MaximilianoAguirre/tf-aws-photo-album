@@ -4,7 +4,20 @@ import { ReactQueryDevtools } from 'react-query/devtools'
 
 import { MainLayout, LoginLayout, PrivateRoute, PublicRoute, AdminRoute, ContributorRoute, ReaderRoute, NoRoleRoute } from 'components'
 
-import { AllPhotos, Located, Map, Login, SetPassword, ForgotPassword, NoRole, AllPersons, Person, AllUsers } from 'pages'
+import {
+  AllPhotos,
+  Located,
+  Map,
+  Login,
+  SetPassword,
+  ForgotPassword,
+  NoRole,
+  AllPersons,
+  Person,
+  AllUsers,
+  UploadFiles,
+  Usage
+} from 'pages'
 
 import { Providers } from 'context/providers_wrapper'
 
@@ -33,6 +46,20 @@ export const App = () => {
           </Route>
 
           <Route
+            path='/contributor'
+            element={
+              <PrivateRoute>
+                <ContributorRoute>
+                  <MainLayout />
+                </ContributorRoute>
+              </PrivateRoute>
+            }
+          >
+            <Route path='upload' element={<UploadFiles />} />
+            <Route index element={<Navigate to='/contributor/upload' replace />} />
+          </Route>
+
+          <Route
             path='/admin'
             element={
               <PrivateRoute>
@@ -43,6 +70,7 @@ export const App = () => {
             }
           >
             <Route path='users' element={<AllUsers />} />
+            <Route path='usage' element={<Usage />} />
             <Route index element={<Navigate to='/admin/users' replace />} />
           </Route>
 
@@ -77,7 +105,7 @@ export const App = () => {
             <Route index element={<Login />} />
           </Route>
         </Routes>
-        {/* <ReactQueryDevtools initialIsOpen={false} position="bottom-right" /> */}
+        <ReactQueryDevtools initialIsOpen={false} position='bottom-right' />
       </Providers>
     </Router>
   )

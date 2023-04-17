@@ -7,11 +7,20 @@ import {
   SyncOutlined,
   UserSwitchOutlined,
   UserAddOutlined,
-  CloseCircleOutlined
+  CloseCircleOutlined,
+  CheckCircleOutlined
 } from '@ant-design/icons'
 import InfiniteScroll from 'react-infinite-scroll-component'
 
-import { useAllUsersInfinite, useAllUserGroups, useDeleteUser, useCreateUser, useChangeUserRole } from 'api/cognito'
+import {
+  useAllUsersInfinite,
+  useAllUserGroups,
+  useDeleteUser,
+  useCreateUser,
+  useChangeUserRole,
+  useEnableUser,
+  useDisableUser
+} from 'api/cognito'
 import { StickyHeader, WrappedSpinner, CustomSpinner } from 'components'
 import { get_user_roles, useAuth } from 'context/auth'
 import { queryClient } from 'context'
@@ -26,9 +35,11 @@ export const AllUsers = () => {
   const [userCreateOpen, setUserCreateOpen] = useState(false)
   const [form] = Form.useForm()
 
-  const users = data?.pages.reduce((acc, curr) => {
-    return acc.concat(curr.Users)
-  }, [])
+  const users = data?.pages
+    .reduce((acc, curr) => {
+      return acc.concat(curr.Users)
+    }, [])
+    .filter((User) => User.Username !== user.username)
 
   const createUser = useCreateUser({
     onSuccess: () => {
@@ -70,20 +81,14 @@ export const AllUsers = () => {
             renderItem={(item) => (
               <List.Item
                 actions={[
-                  <UserRoleDropdown key={'dropdown'} disabled={item.Username === user.username} user_id={item.Username} />,
-                  <DeleteUserButton key={'deleteButtom'} disabled={item.Username === user.username} user_id={item.Username} />
+                  <UserRoleDropdown key='dropdown' user_id={item.Username} />,
+                  <EnableUserButton key='enableButton' user_id={item.Username} user_enabled={item.Enabled} />,
+                  <DeleteUserButton key='deleteButtom' user_id={item.Username} />
                 ]}
               >
                 <List.Item.Meta
                   title={item.Attributes.find((attr) => attr.Name === 'email').Value}
-                  avatar={
-                    <Avatar
-                      icon={!(item.Username === user.username) && <UserOutlined />}
-                      style={item.Username === user.username && { backgroundColor: 'green' }}
-                    >
-                      {item.Username === user.username && 'ME'}
-                    </Avatar>
-                  }
+                  avatar={<Avatar icon={<UserOutlined />} style={{ backgroundColor: item.Enabled ? 'green' : 'red' }} shape='square' />}
                   description={
                     <List
                       itemLayout='vertical'
@@ -96,7 +101,10 @@ export const AllUsers = () => {
                           </Text>
                         </>,
                         <>
-                          Account status: <Tag>{capitalize(item.UserStatus.replaceAll('_', ' '))}</Tag>
+                          Account status:{' '}
+                          <>
+                            <Tag>{capitalize(item.UserStatus.replaceAll('_', ' '))}</Tag> {!item.Enabled && <Tag color='red'>Disabled</Tag>}
+                          </>
                         </>,
                         <>
                           Role: <UserRole user_id={item.Username} />
@@ -141,7 +149,7 @@ export const AllUsers = () => {
   )
 }
 
-const DeleteUserButton = ({ user_id, disabled }) => {
+const DeleteUserButton = ({ user_id }) => {
   const deleteUser = useDeleteUser({
     onSuccess: () => {
       message.success(`User deleted`)
@@ -153,20 +161,48 @@ const DeleteUserButton = ({ user_id, disabled }) => {
   })
 
   return (
-    <Button
-      danger
-      type='primary'
-      icon={<DeleteOutlined />}
-      disabled={disabled}
-      loading={deleteUser.isLoading}
-      onClick={() => deleteUser.mutate(user_id)}
-    >
+    <Button danger type='primary' icon={<DeleteOutlined />} loading={deleteUser.isLoading} onClick={() => deleteUser.mutate(user_id)}>
       Delete
     </Button>
   )
 }
 
-const UserRoleDropdown = ({ user_id, disabled }) => {
+const EnableUserButton = ({ user_id, user_enabled }) => {
+  const enableUser = useEnableUser({
+    onSuccess: () => {
+      message.success(`User enabled`)
+      queryClient.resetQueries(['all-users-infinite'])
+    },
+    onError: (error) => {
+      message.error(error.message)
+    }
+  })
+
+  const disableUser = useDisableUser({
+    onSuccess: () => {
+      message.success(`User disabled`)
+      queryClient.resetQueries(['all-users-infinite'])
+    },
+    onError: (error) => {
+      message.error(error.message)
+    }
+  })
+
+  return (
+    <Button
+      danger={user_enabled}
+      type='primary'
+      icon={!user_enabled ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
+      style={!user_enabled ? { backgroundColor: 'green' } : {}}
+      loading={enableUser.isLoading || disableUser.isLoading}
+      onClick={() => (user_enabled ? disableUser.mutate(user_id) : enableUser.mutate(user_id))}
+    >
+      {user_enabled ? 'Disable' : 'Enable'}
+    </Button>
+  )
+}
+
+const UserRoleDropdown = ({ user_id }) => {
   const { data, isLoading } = useAllUserGroups(user_id)
   const role = !isLoading && get_user_roles(data.map((group) => group.GroupName))
 
@@ -182,7 +218,7 @@ const UserRoleDropdown = ({ user_id, disabled }) => {
 
   return (
     <Dropdown
-      disabled={disabled || isLoading}
+      disabled={isLoading}
       menu={{
         items: [
           {

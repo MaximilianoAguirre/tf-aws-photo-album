@@ -19,7 +19,7 @@ export const StickyHeader = ({ children, chooseSize = true, title }) => {
         )}
         {children}
         {chooseSize && (
-          <Col flex='100px'>
+          <Col flex='130px'>
             <ChooseSizeRadio />
           </Col>
         )}

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Col, Row, Empty } from 'antd'
+import { Col, Row, Empty, Divider } from 'antd'
 import InfiniteScroll from 'react-infinite-scroll-component'
 
 import { useAllPhotosInfinite } from 'api/dynamo'
@@ -12,6 +12,7 @@ export const AllPhotos = () => {
 
   // Process all pages returned by DynamoDB and create a single list of photos
   const photos = data?.pages.reduce((acc, curr) => {
+    console.log(curr.Items)
     return acc.concat(curr.Items)
   }, [])
 
@@ -32,7 +33,8 @@ export const AllPhotos = () => {
           next={() => fetchNextPage()}
           loader={<CustomSpinner />}
         >
-          <Row justify='center' align='middle' gutter={[15, 15]} style={{ marginTop: '15px', width: '100%' }}>
+          <Divider orientation='left'>Enero &apos;22</Divider>
+          <Row justify='center' align='bottom' gutter={[15, 15]} style={{ marginTop: '15px', width: '100%' }}>
             {photos.map((photo) => (
               <Col key={photo.PK.S}>
                 <CustomImage photo={photo} width={width} />
