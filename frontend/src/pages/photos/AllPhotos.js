@@ -12,7 +12,6 @@ export const AllPhotos = () => {
 
   // Process all pages returned by DynamoDB and create a single list of photos
   const photos = data?.pages.reduce((acc, curr) => {
-    console.log(curr.Items)
     return acc.concat(curr.Items)
   }, [])
 
@@ -33,7 +32,7 @@ export const AllPhotos = () => {
           next={() => fetchNextPage()}
           loader={<CustomSpinner />}
         >
-          <Divider orientation='left'>Febrero &apos;22</Divider>
+          <Divider orientation='left'>January &apos;22</Divider>
           <Row justify='center' align='bottom' gutter={[15, 15]} style={{ marginTop: '15px', width: '100%' }}>
             {photos.map((photo) => (
               <Col key={photo.PK.S}>

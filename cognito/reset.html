@@ -1,7 +1,72 @@
-<h1>You requested a reset password code for ${name}</h1>
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office">
 
-<p>You can reset your password <a href="${url}/login/forgot-password?code={####}">here</a>.</p>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<meta name="x-apple-disable-message-reformatting">
+	<title>${name}</title>
+	<!--[if mso]>
+  <noscript>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+  </noscript>
+  <![endif]-->
+	<style>
+		table,
+		td,
+		div,
+		h1,
+		p {
+			font-family: Arial, sans-serif;
+		}
+	</style>
+</head>
 
-<ul>
-    <li>Code: <b>{####}</b></li>
-</ul>
+<body style="margin:0;padding:0;min-height: 100%;background:#fff;">
+	<table role="presentation" style="width:100%;border-collapse:collapse;border:0;border-spacing:0">
+		<tr>
+			<td align="center" style="padding:0;">
+				<table role="presentation" style="width:602px;border-collapse:collapse;text-align:left;">
+					<tr>
+						<td align="center" style="padding:40px 0 30px 0;background:#fff;">
+							<img src="${url}/logo.png" alt="" width="300"
+								style="height:auto;display:block;" />
+						</td>
+					</tr>
+					<tr>
+						<td style="padding:36px 30px 42px 30px;">
+							<table role="presentation"
+								style="width:100%;border-collapse:collapse;border:0;border-spacing:0;">
+								<tr>
+									<td style="padding:0 0 36px 0;color:#1668dc;">
+										<h1 style="font-size:24px;margin:0 0 20px 0;font-family:Arial,sans-serif;">
+											Reset password code for ${name}
+										</h1>
+										<p
+											style="margin:0 0 12px 0;font-size:16px;line-height:24px;font-family:Arial,sans-serif;">
+											You have requested a code to reset your account password. You can reset your
+											account password <a
+												href="${url}/login/forgot-password?code={####}">here</a>.
+										</p>
+										<ul>
+											<li>Code: <b>{####}</b></li>
+										</ul>
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+	</td>
+	</tr>
+	</table>
+</body>
+
+</html>

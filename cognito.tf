@@ -13,10 +13,10 @@ resource "aws_cognito_user_pool" "pool" {
 
     invite_message_template {
       sms_message   = "Your username is {username} and temporary password is {####}"
-      email_subject = "Photo album temporary password"
+      email_subject = "Photo album invitation"
 
       email_message = templatefile("${path.module}/cognito/invitation.html", {
-        name = "${local.dash_prefix}photo-bucket"
+        name = "Photo album"
         url  = var.route53_public_zone_id == null ? aws_cloudfront_distribution.frontend_cloudfront.domain_name : "${var.route53_subdomain}${data.aws_route53_zone.public_zone[0].name}"
       })
     }
@@ -26,7 +26,7 @@ resource "aws_cognito_user_pool" "pool" {
     email_subject = "Photo album reset password code"
 
     email_message = templatefile("${path.module}/cognito/reset.html", {
-      name = "${local.dash_prefix}photo-bucket"
+      name = "Photo album"
       url  = var.route53_public_zone_id == null ? aws_cloudfront_distribution.frontend_cloudfront.domain_name : "${var.route53_subdomain}${data.aws_route53_zone.public_zone[0].name}"
     })
   }
@@ -42,13 +42,8 @@ resource "aws_cognito_user_pool" "pool" {
 }
 
 resource "aws_cognito_user_pool_client" "poolclient" {
-  name                                 = "${local.dash_prefix}photo-bucket"
-  user_pool_id                         = aws_cognito_user_pool.pool.id
-  allowed_oauth_flows_user_pool_client = true
-  allowed_oauth_scopes                 = ["phone", "email", "openid", "profile", "aws.cognito.signin.user.admin"]
-  allowed_oauth_flows                  = ["code"]
-  callback_urls                        = ["http://localhost:3000"]
-  logout_urls                          = ["http://localhost:3000"]
+  name         = "${local.dash_prefix}photo-bucket"
+  user_pool_id = aws_cognito_user_pool.pool.id
 }
 
 resource "aws_cognito_identity_pool" "identitypool" {

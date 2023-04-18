@@ -24,9 +24,6 @@ export function AntdProvider({ children }) {
       }}
       theme={{
         algorithm: [theme === 'dark' ? darkAlgorithm : defaultAlgorithm, compactAlgorithm]
-        // token: {
-        //     colorPrimary: '#9400d3'
-        // }
       }}
     >
       {children}
