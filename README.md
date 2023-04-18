@@ -15,6 +15,8 @@ This is a terraform module that deploys an end to end solution to host and consu
   - The table is designed to optimize queries
 - Cognito services to manage access to your photos
 - S3 bucket with a cloudfront distribution to host the app
+  - A pipeline to build the frontend code fron the source code
+  - An asynchronych process to rerun the pipeline if a new version of the module is applied
 
 ## Diagram
 

@@ -10,6 +10,6 @@ resource "aws_sqs_queue_policy" "rekognition" {
 
   policy = templatefile("${path.module}/iam/sqs_rekognition.json", {
     queue_arn = aws_sqs_queue.rekognition.arn
-    topic_arn  = aws_sns_topic.photo_album_create.arn
+    topic_arn = aws_sns_topic.photo_album_create.arn
   })
 }

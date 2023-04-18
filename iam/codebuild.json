@@ -1,0 +1,29 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AccessS3Bucket",
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObject",
+                "s3:GetObjectVersion",
+                "s3:GetBucketVersioning",
+                "s3:PutObjectAcl",
+                "s3:PutObject"
+            ],
+            "Resource": ${jsonencode(flatten([for bucket in buckets: ["${bucket}", "${bucket}/*"]]))}
+        },
+        {
+            "Sid": "CloudWatch",
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+            ],
+            "Resource": [
+                "*"
+            ]
+        }
+    ]
+}

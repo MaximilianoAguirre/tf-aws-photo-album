@@ -1,0 +1,14 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands: yarn install
+
+  build:
+    commands: yarn build
+
+artifacts:
+  base-directory: build
+  files:
+    - '**/*'
+  name: built_code

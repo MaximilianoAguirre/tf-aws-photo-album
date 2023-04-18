@@ -1,3 +1,6 @@
+########################################################
+# CLOUDFRONT DISTRIBUTION
+########################################################
 resource "aws_cloudfront_distribution" "frontend_cloudfront" {
   enabled             = true
   is_ipv6_enabled     = true

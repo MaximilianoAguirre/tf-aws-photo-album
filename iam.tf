@@ -1,5 +1,5 @@
 ########################################################
-# IAM ROLES
+# APP IAM ROLES
 ########################################################
 resource "aws_iam_role" "authenticated" {
   name = "${local.dash_prefix}photo-bucket-authenticated"
@@ -52,7 +52,7 @@ resource "aws_iam_role" "unauthenticated" {
 }
 
 ########################################################
-# IAM POLICIES
+# APP IAM POLICIES
 ########################################################
 resource "aws_iam_policy" "reader" {
   name = "${local.dash_prefix}photo-bucket-reader"
@@ -111,4 +111,55 @@ resource "aws_iam_policy" "admin" {
 resource "aws_iam_role_policy_attachment" "admin_manage" {
   role       = aws_iam_role.admin.name
   policy_arn = aws_iam_policy.admin.arn
+}
+
+########################################################
+# PIPELINE IAM ROLE
+########################################################
+resource "aws_iam_role" "pipeline" {
+  name               = "${local.dash_prefix}photo-bucket-pipeline"
+  assume_role_policy = file("${path.module}/iam/codepipeline_assume.json")
+  tags               = local.tags
+}
+
+resource "aws_iam_role_policy" "pipeline" {
+  name   = "${local.dash_prefix}photo-bucket-pipeline-main"
+  role   = aws_iam_role.pipeline.id
+  policy = file("${path.module}/iam/codepipeline.json")
+}
+
+########################################################
+# CODEBUILD IAM ROLE
+########################################################
+resource "aws_iam_role" "codebuild" {
+  name               = "${local.dash_prefix}photo-bucket-codebuild"
+  assume_role_policy = file("${path.module}/iam/codebuild_assume.json")
+  tags               = local.tags
+}
+
+resource "aws_iam_role_policy" "codebuild" {
+  name = "${local.dash_prefix}photo-bucket-pipeline-main"
+  role = aws_iam_role.codebuild.id
+
+  policy = templatefile("${path.module}/iam/codebuild.json", {
+    buckets = [module.web_build_bucket.s3_bucket_arn]
+  })
+}
+
+########################################################
+# EVENTS IAM ROLE
+########################################################
+resource "aws_iam_role" "events" {
+  name               = "${local.dash_prefix}photo-bucket-events-trigger"
+  assume_role_policy = file("${path.module}/iam/events_assume.json")
+  tags               = local.tags
+}
+
+resource "aws_iam_role_policy" "events" {
+  name = "${local.dash_prefix}photo-bucket-events-trigger"
+  role = aws_iam_role.events.id
+
+  policy = templatefile("${path.module}/iam/events.json", {
+    pipeline = aws_codepipeline.codepipeline.arn
+  })
 }

@@ -33,7 +33,7 @@ export const AllPhotos = () => {
           next={() => fetchNextPage()}
           loader={<CustomSpinner />}
         >
-          <Divider orientation='left'>Enero &apos;22</Divider>
+          <Divider orientation='left'>Febrero &apos;22</Divider>
           <Row justify='center' align='bottom' gutter={[15, 15]} style={{ marginTop: '15px', width: '100%' }}>
             {photos.map((photo) => (
               <Col key={photo.PK.S}>

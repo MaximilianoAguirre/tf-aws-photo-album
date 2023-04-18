@@ -1,3 +1,6 @@
+########################################################
+# ACM CERT
+########################################################
 resource "aws_acm_certificate" "cert" {
   count = var.route53_public_zone_id != null ? 1 : 0
 

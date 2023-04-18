@@ -182,3 +182,43 @@ module "image_deletion" {
     rekognition_collection_id = aws_cloudformation_stack.rekognition.outputs.collectionId
   }
 }
+
+########################################################
+# CLOUDFRONT INVALIDATOR
+########################################################
+module "cloudfront_invalidator" {
+  source  = "terraform-aws-modules/lambda/aws"
+  version = "4.2.0"
+
+  function_name                     = "${local.dash_prefix}cloudfront-invalidator"
+  description                       = "Lambda to invalidate cloudfront cache when the frontend is built"
+  handler                           = "main.lambda_handler"
+  runtime                           = "python3.8"
+  source_path                       = "${path.module}/lambda/cloudfront_invalidator"
+  artifacts_dir                     = "${path.module}/builds"
+  tags                              = local.tags
+  publish                           = true
+  recreate_missing_package          = false
+  ignore_source_code_hash           = true
+  attach_policy_statements          = true
+  cloudwatch_logs_retention_in_days = 14
+  timeout                           = 120
+
+  policy_statements = {
+    cloudfront = {
+      effect    = "Allow"
+      actions   = ["cloudfront:CreateInvalidation"]
+      resources = [aws_cloudfront_distribution.frontend_cloudfront.arn]
+    }
+
+    pipeline = {
+      effect    = "Allow"
+      actions   = ["codepipeline:PutJobFailureResult", "codepipeline:PutJobSuccessResult"]
+      resources = ["*"]
+    }
+  }
+
+  environment_variables = {
+    cf_distribution = aws_cloudfront_distribution.frontend_cloudfront.id
+  }
+}

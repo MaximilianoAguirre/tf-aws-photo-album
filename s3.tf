@@ -52,7 +52,7 @@ resource "aws_s3_bucket_notification" "s3_triggers" {
 }
 
 ########################################################
-# WEBPAGE BUCKET
+# WEBPAGE HOST BUCKET
 ########################################################
 module "web_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
@@ -74,7 +74,37 @@ resource "aws_s3_bucket_policy" "web_bucket_policy" {
 }
 
 ########################################################
-# WEBPAGE S3 OBJECTS
+# WEBPAGE BUILD BUCKET
+########################################################
+module "web_build_bucket" {
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "3.4.0"
+
+  bucket_prefix = "${local.dash_prefix}web-build-bucket-"
+  acl           = "private"
+  tags          = local.tags
+  force_destroy = true
+  versioning    = { status = true }
+}
+
+data "archive_file" "frontend_source" {
+  type        = "zip"
+  source_dir  = "${path.module}/frontend"
+  output_path = "${path.module}/builds/frontend.zip"
+  excludes    = ["public/config.js", "frontend.zip"]
+}
+
+resource "aws_s3_object" "frontend_build_source" {
+  bucket       = module.web_build_bucket.s3_bucket_id
+  source       = data.archive_file.frontend_source.output_path
+  source_hash  = data.archive_file.frontend_source.output_base64sha256
+  key          = "frontend.zip"
+  content_type = "application/zip"
+  tags         = local.tags
+}
+
+########################################################
+# WEBPAGE HOST S3 OBJECTS
 ########################################################
 locals {
   mime_types          = jsondecode(file("${path.module}/util/mime.json"))
@@ -98,16 +128,16 @@ resource "local_file" "react_config_dev" {
   content  = local.frontend_config
 }
 
-resource "aws_s3_object" "static_frontend_objects" {
-  for_each = fileset(local.frontend_build_path, "**")
+# resource "aws_s3_object" "static_frontend_objects" {
+#   for_each = fileset(local.frontend_build_path, "**")
 
-  bucket       = module.web_bucket.s3_bucket_id
-  key          = each.key
-  source       = "${local.frontend_build_path}/${each.key}"
-  source_hash  = filemd5("${local.frontend_build_path}/${each.key}")
-  content_type = lookup(local.mime_types, regex("\\.[^.]+$", each.value), null)
-  tags         = local.tags
-}
+#   bucket       = module.web_bucket.s3_bucket_id
+#   key          = each.key
+#   source       = "${local.frontend_build_path}/${each.key}"
+#   source_hash  = filemd5("${local.frontend_build_path}/${each.key}")
+#   content_type = lookup(local.mime_types, regex("\\.[^.]+$", each.value), null)
+#   tags         = local.tags
+# }
 
 resource "aws_s3_object" "static_frontend_config_file" {
   bucket       = module.web_bucket.s3_bucket_id
