@@ -11,19 +11,6 @@ module "photo_bucket" {
   force_destroy = true
 }
 
-# TODO: filter CORS domains
-resource "aws_s3_bucket_cors_configuration" "photo_bucket" {
-  bucket = module.photo_bucket.s3_bucket_id
-
-  cors_rule {
-    allowed_headers = ["*"]
-    allowed_methods = ["PUT", "POST", "HEAD", "GET", "DELETE"]
-    allowed_origins = ["*"]
-    expose_headers  = ["ETag"]
-    max_age_seconds = 3000
-  }
-}
-
 module "photo_assets_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "3.4.0"
@@ -91,7 +78,7 @@ data "archive_file" "frontend_source" {
   type        = "zip"
   source_dir  = "${path.module}/frontend"
   output_path = "${path.module}/builds/frontend.zip"
-  excludes    = ["public/config.js", "frontend.zip"]
+  excludes    = ["public/config.js", "frontend.zip", "node_modules", "build"]
 }
 
 resource "aws_s3_object" "frontend_build_source" {
@@ -110,34 +97,23 @@ locals {
   mime_types          = jsondecode(file("${path.module}/util/mime.json"))
   frontend_build_path = "${path.module}/frontend/build"
 
-  frontend_config = <<EOF
-var config = {
-    "AWS_REGION": "${data.aws_region.current.name}",
-    "DYNAMO_TABLE": "${aws_dynamodb_table.photo_tracker.id}",
-    "PHOTO_BUCKET": "${module.photo_bucket.s3_bucket_id}",
-    "PHOTO_ASSETS_BUCKET": "${module.photo_assets_bucket.s3_bucket_id}",
-    "COGNITO_IDENTITY_POOL": "${aws_cognito_identity_pool.identitypool.id}",
-    "COGNITO_USER_POOL": "${aws_cognito_user_pool.pool.id}",
-    "COGNITO_USER_POOL_WEB_CLIENT": "${aws_cognito_user_pool_client.poolclient.id}"
-}
-EOF
+  frontend_config = templatefile("${path.module}/config/config.js", {
+    aws_region                   = data.aws_region.current.name
+    dynamo_table                 = aws_dynamodb_table.photo_tracker.id
+    photo_bucket                 = module.photo_bucket.s3_bucket_id
+    photo_assets_bucket          = module.photo_assets_bucket.s3_bucket_id
+    cognito_identity_pool        = aws_cognito_identity_pool.identitypool.id
+    cognito_user_pool            = aws_cognito_user_pool.pool.id
+    cognito_user_pool_web_client = aws_cognito_user_pool_client.poolclient.id
+  })
 }
 
 resource "local_file" "react_config_dev" {
+  count = var.create_dev_config_file ? 1 : 0
+
   filename = "${path.module}/frontend/public/config.js"
   content  = local.frontend_config
 }
-
-# resource "aws_s3_object" "static_frontend_objects" {
-#   for_each = fileset(local.frontend_build_path, "**")
-
-#   bucket       = module.web_bucket.s3_bucket_id
-#   key          = each.key
-#   source       = "${local.frontend_build_path}/${each.key}"
-#   source_hash  = filemd5("${local.frontend_build_path}/${each.key}")
-#   content_type = lookup(local.mime_types, regex("\\.[^.]+$", each.value), null)
-#   tags         = local.tags
-# }
 
 resource "aws_s3_object" "static_frontend_config_file" {
   bucket       = module.web_bucket.s3_bucket_id

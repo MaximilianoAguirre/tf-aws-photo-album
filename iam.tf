@@ -122,6 +122,7 @@ resource "aws_iam_role" "pipeline" {
   tags               = local.tags
 }
 
+# IAM Policy replicated from policy created automatically in AWS console
 resource "aws_iam_role_policy" "pipeline" {
   name   = "${local.dash_prefix}photo-bucket-pipeline-main"
   role   = aws_iam_role.pipeline.id
