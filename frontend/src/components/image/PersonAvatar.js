@@ -5,7 +5,7 @@ import { LoadingOutlined } from '@ant-design/icons'
 import { usePersonPhotos, usePhoto } from 'api/dynamo'
 import { useScaledPhotoURL } from 'api/s3'
 
-export const PersonAvatar = ({ person_id, size = 64 }) => {
+export const PersonAvatar = ({ person_id, size = 64, style, onClick }) => {
   const { data, isLoading, isError } = usePersonPhotos(person_id, 1)
   const { data: photoUrl } = useScaledPhotoURL(data?.[0].PK.S.replace('#S3#', ''), 768, { enabled: !isLoading })
   const { data: photo, isLoading: isLoadingPhoto } = usePhoto(data?.[0].PK.S, { enabled: !isLoading })
@@ -37,6 +37,8 @@ export const PersonAvatar = ({ person_id, size = 64 }) => {
           <image href={photoUrl} width={coord.w} height={coord.h} x={coord.x} y={coord.y} />
         </svg>
       }
+      style={style}
+      onClick={() => onClick && onClick()}
       shape='square'
       size={size}
     />

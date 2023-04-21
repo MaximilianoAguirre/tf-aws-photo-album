@@ -3,10 +3,10 @@
   "ModelMetadata": {
     "Author": "Maximiliano Aguirre",
     "DateCreated": "Nov 16, 2022, 05:53 PM",
-    "DateLastModified": "Nov 16, 2022, 11:21 PM",
+    "DateLastModified": "Apr 20, 2023, 08:10 PM",
     "Description": "Schema to use with photo album",
     "AWSService": "Amazon DynamoDB",
-    "Version": "3.0"
+    "Version": "1.0"
   },
   "DataModel": [
     {
@@ -36,7 +36,7 @@
         },
         {
           "AttributeName": "GSI2SK",
-          "AttributeType": "S"
+          "AttributeType": "N"
         },
         {
           "AttributeName": "geohash",
@@ -60,6 +60,10 @@
         },
         {
           "AttributeName": "content_type",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "name",
           "AttributeType": "S"
         }
       ],
@@ -89,7 +93,7 @@
             },
             "SortKey": {
               "AttributeName": "GSI2SK",
-              "AttributeType": "S"
+              "AttributeType": "N"
             }
           },
           "Projection": {
@@ -131,7 +135,7 @@
             "S": "#TIMESTAMP"
           },
           "GSI2SK": {
-            "S": "131651651"
+            "N": "123123123"
           },
           "geohash": {
             "S": "adfgsdfhsfh"
@@ -163,7 +167,7 @@
             "S": "#TIMESTAMP"
           },
           "GSI2SK": {
-            "S": "3216849"
+            "N": "425345345"
           },
           "geohash": {
             "S": "qergerg61"
@@ -195,7 +199,7 @@
             "S": "#TIMESTAMP"
           },
           "GSI2SK": {
-            "S": "3216564"
+            "N": "352533465"
           },
           "geohash": {
             "S": "adgadg951"
@@ -217,9 +221,6 @@
           "GSI2PK": {
             "S": "#TIMESTAMP"
           },
-          "GSI2SK": {
-            "S": "95195151"
-          },
           "timestamp": {
             "N": "95195151"
           },
@@ -232,7 +233,13 @@
             "S": "#S3#test1.jpg"
           },
           "SK": {
-            "S": "#FACE#1"
+            "S": "#FACE#face1"
+          },
+          "GSI1PK": {
+            "S": "#PERSON#face1"
+          },
+          "GSI1SK": {
+            "S": "#S3#test1.jpg"
           },
           "confidence": {
             "S": "99.5"
@@ -246,7 +253,13 @@
             "S": "#S3#test1.jpg"
           },
           "SK": {
-            "S": "#FACE#2"
+            "S": "#FACE#face2"
+          },
+          "GSI1PK": {
+            "S": "#PERSON#face1"
+          },
+          "GSI1SK": {
+            "S": "#S3#test1.jpg"
           },
           "confidence": {
             "S": "99.5"
@@ -260,7 +273,13 @@
             "S": "#S3#test2.jpg"
           },
           "SK": {
-            "S": "#FACE#3"
+            "S": "#FACE#face3"
+          },
+          "GSI1PK": {
+            "S": "#PERSON#face3"
+          },
+          "GSI1SK": {
+            "S": "#S3#test2.jpg"
           },
           "confidence": {
             "S": "99.5"
@@ -274,7 +293,13 @@
             "S": "#S3#test2.jpg"
           },
           "SK": {
-            "S": "#FACE#4"
+            "S": "#FACE#face4"
+          },
+          "GSI1PK": {
+            "S": "#PERSON#face4"
+          },
+          "GSI1SK": {
+            "S": "#S3#test2.jpg"
           },
           "confidence": {
             "S": "99.5"
@@ -285,10 +310,10 @@
         },
         {
           "PK": {
-            "S": "#PERSON#name1"
+            "S": "#PERSON#face1"
           },
           "SK": {
-            "S": "#FACE#1"
+            "S": "#FACE#face1"
           },
           "confidence": {
             "S": "100"
@@ -296,10 +321,10 @@
         },
         {
           "PK": {
-            "S": "#PERSON#name1"
+            "S": "#PERSON#face3"
           },
           "SK": {
-            "S": "#FACE#3"
+            "S": "#FACE#face3"
           },
           "confidence": {
             "S": "98"
@@ -307,10 +332,10 @@
         },
         {
           "PK": {
-            "S": "#PERSON#name2"
+            "S": "#PERSON#face1"
           },
           "SK": {
-            "S": "#FACE#2"
+            "S": "#FACE#face2"
           },
           "confidence": {
             "S": "100"
@@ -318,42 +343,66 @@
         },
         {
           "PK": {
-            "S": "#PERSON#name3"
+            "S": "#PERSON#face4"
           },
           "SK": {
-            "S": "#FACE#4"
+            "S": "#FACE#face4"
+          }
+        },
+        {
+          "PK": {
+            "S": "#PERSON#face1"
+          },
+          "SK": {
+            "S": "#METADATA"
+          },
+          "GSI2PK": {
+            "S": "#APPEARANCES"
+          },
+          "GSI2SK": {
+            "N": "2"
+          },
+          "name": {
+            "S": "face1"
+          }
+        },
+        {
+          "PK": {
+            "S": "#PERSON#face3"
+          },
+          "SK": {
+            "S": "#METADATA"
+          },
+          "GSI2PK": {
+            "S": "#APPEARANCES"
+          },
+          "GSI2SK": {
+            "N": "1"
+          },
+          "name": {
+            "S": "face3"
+          }
+        },
+        {
+          "PK": {
+            "S": "#PERSON#face4"
+          },
+          "SK": {
+            "S": "#METADATA"
+          },
+          "GSI2PK": {
+            "S": "#APPEARANCES"
+          },
+          "GSI2SK": {
+            "N": "1"
+          },
+          "name": {
+            "S": "face4"
           }
         }
       ],
       "DataAccess": {
         "MySql": {}
-      },
-      "BillingMode": "PROVISIONED",
-      "ProvisionedCapacitySettings": {
-        "ProvisionedThroughput": {
-          "ReadCapacityUnits": 5,
-          "WriteCapacityUnits": 5
-        },
-        "AutoScalingRead": {
-          "ScalableTargetRequest": {
-            "MinCapacity": 1,
-            "MaxCapacity": 10,
-            "ServiceRole": "AWSServiceRoleForApplicationAutoScaling_DynamoDBTable"
-          },
-          "ScalingPolicyConfiguration": {
-            "TargetValue": 70
-          }
-        },
-        "AutoScalingWrite": {
-          "ScalableTargetRequest": {
-            "MinCapacity": 1,
-            "MaxCapacity": 10,
-            "ServiceRole": "AWSServiceRoleForApplicationAutoScaling_DynamoDBTable"
-          },
-          "ScalingPolicyConfiguration": {
-            "TargetValue": 70
-          }
-        }
       }
     }
   ]

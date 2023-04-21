@@ -35,7 +35,7 @@ const reader_items = [
   {
     key: '/persons',
     path: '/persons',
-    label: 'People in photos',
+    label: 'People',
     icon: <MdOutlineVideoCameraFront size={18} />
   }
 ]
@@ -59,7 +59,7 @@ const admin_items = [
   {
     key: '/admin/users',
     path: '/admin/users',
-    label: 'User list',
+    label: 'Users',
     icon: <TeamOutlined />
   },
   {

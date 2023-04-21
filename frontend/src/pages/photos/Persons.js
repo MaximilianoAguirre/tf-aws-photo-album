@@ -1,9 +1,10 @@
 import React from 'react'
-import { Empty, Col, Row, Card } from 'antd'
+import { Empty, Col, Row, Card, Tag } from 'antd'
+import { MailOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import InfiniteScroll from 'react-infinite-scroll-component'
 
-import { useAllPersonsInfinite, useAllPersonsByAppearanceInfinite } from 'api/dynamo'
+import { useAllPersonsByAppearanceInfinite } from 'api/dynamo'
 import { StickyHeader, WrappedSpinner, CustomSpinner, PersonAvatar } from 'components'
 
 const { Meta } = Card
@@ -34,15 +35,24 @@ export const AllPersons = () => {
           next={() => fetchNextPage()}
           loader={<CustomSpinner />}
         >
-          <Row gutter={[10, 10]} style={{ margin: 0, width: '100%' }}>
+          <Row justify="space-around" gutter={[15, 15]} style={{ margin: 0, width: '100%' }}>
             {persons.map((person) => (
               <Col key={person.PK.S}>
                 <Card
-                  onClick={() => navigate(`/person/${encodeURIComponent(person.PK.S)}`)}
-                  style={{ width: '100px', cursor: 'pointer' }}
+                  cover={<PersonAvatar
+                    onClick={() => navigate(`/person/${encodeURIComponent(person.PK.S)}`)}
+                    size={150}
+                    person_id={person.PK.S}
+                    style={{ cursor: "pointer" }}
+                  />}
+                  style={{ width: "150px" }}
                   title={person.PK.S.replace('#PERSON#', '')}
+                  actions={[
+                    <MailOutlined key="asd" />,
+                    <MailOutlined key="asd2" />
+                  ]}
                 >
-                  <Meta avatar={<PersonAvatar person_id={person.PK.S} />} />
+                  Photos: <Tag>{person.GSI2SK.N}</Tag>
                 </Card>
               </Col>
             ))}
