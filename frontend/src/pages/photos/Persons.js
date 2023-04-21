@@ -1,13 +1,12 @@
 import React from 'react'
-import { Empty, Col, Row, Card, Tag } from 'antd'
-import { MailOutlined } from '@ant-design/icons'
+import { Empty, Col, Row, Card, Typography } from 'antd'
 import { useNavigate } from 'react-router-dom'
 import InfiniteScroll from 'react-infinite-scroll-component'
 
-import { useAllPersonsByAppearanceInfinite } from 'api/dynamo'
+import { useAllPersonsByAppearanceInfinite, useChangePersonName } from 'api/dynamo'
 import { StickyHeader, WrappedSpinner, CustomSpinner, PersonAvatar } from 'components'
 
-const { Meta } = Card
+const { Paragraph } = Typography
 
 export const AllPersons = () => {
   const { data, isLoading, fetchNextPage, hasNextPage } = useAllPersonsByAppearanceInfinite()
@@ -35,24 +34,23 @@ export const AllPersons = () => {
           next={() => fetchNextPage()}
           loader={<CustomSpinner />}
         >
-          <Row justify="space-around" gutter={[15, 15]} style={{ margin: 0, width: '100%' }}>
+          <Row justify='space-around' gutter={[15, 15]} style={{ marginRight: 0, marginLeft: 0, width: '100%' }}>
             {persons.map((person) => (
               <Col key={person.PK.S}>
                 <Card
-                  cover={<PersonAvatar
-                    onClick={() => navigate(`/person/${encodeURIComponent(person.PK.S)}`)}
-                    size={150}
-                    person_id={person.PK.S}
-                    style={{ cursor: "pointer" }}
-                  />}
-                  style={{ width: "150px" }}
-                  title={person.PK.S.replace('#PERSON#', '')}
-                  actions={[
-                    <MailOutlined key="asd" />,
-                    <MailOutlined key="asd2" />
-                  ]}
+                  style={{ width: '150px' }}
+                  // title={}
+                  cover={
+                    <PersonAvatar
+                      onClick={() => navigate(`/person/${encodeURIComponent(person.PK.S)}`)}
+                      size={150}
+                      person_id={person.PK.S}
+                      style={{ cursor: 'pointer' }}
+                    />
+                  }
                 >
-                  Photos: <Tag>{person.GSI2SK.N}</Tag>
+                  <PersonName id={person.PK.S} name={person.name.S} />
+                  Photos: {person.GSI2SK.N}
                 </Card>
               </Col>
             ))}
@@ -60,5 +58,23 @@ export const AllPersons = () => {
         </InfiniteScroll>
       )}
     </>
+  )
+}
+
+const PersonName = ({ id, name }) => {
+  const changeName = useChangePersonName()
+
+  return (
+    <Paragraph
+      strong
+      ellipsis={{ tooltip: true }}
+      editable={{
+        onChange: (name) => changeName.mutate({ id, name }),
+        tooltip: false,
+        autoSize: { maxRows: 1 }
+      }}
+    >
+      {name}
+    </Paragraph>
   )
 }

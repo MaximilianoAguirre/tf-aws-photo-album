@@ -72,7 +72,7 @@ export const AllUsers = () => {
           next={() => fetchNextPage()}
           loader={<CustomSpinner />}
         >
-          <Row gutter={[10, 10]} style={{ margin: 0, width: '100%' }}>
+          <Row gutter={[10, 10]} style={{ marginRight: 0, marginLeft: 0, width: '100%' }}>
             {users.map((user) => {
               const email = user.Attributes.find((attr) => attr.Name === 'email').Value
               const status = capitalize(user.UserStatus.replaceAll('_', ' '))

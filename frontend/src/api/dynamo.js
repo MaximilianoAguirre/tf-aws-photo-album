@@ -1,8 +1,9 @@
-import { useQueries, useQuery, useInfiniteQuery } from 'react-query'
-import { DynamoDBClient, QueryCommand } from '@aws-sdk/client-dynamodb'
+import { useQueries, useQuery, useInfiniteQuery, useMutation } from 'react-query'
+import { DynamoDBClient, QueryCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb'
 
 import { config } from 'config/config'
 import { getSignedClient } from 'util/aws'
+import { queryClient } from 'context'
 
 export function useAllPhotos(limit = null, options = {}) {
   return useQuery(
@@ -49,7 +50,8 @@ export function usePhoto(id, options = {}) {
     },
     {
       ...options,
-      select: (data) => data.Items[0]
+      select: (data) => data.Items[0],
+      staleTime: 300 * 1000,
     }
   )
 }
@@ -207,7 +209,8 @@ export function usePersonPhotos(id, limit = 200, options = {}) {
     },
     {
       ...options,
-      select: (response) => response.Items
+      select: (response) => response.Items,
+      staleTime: 300 * 1000,
     }
   )
 }
@@ -345,4 +348,28 @@ export function useLocatedPhotoslList(hashes, { limit = null, options = {} } = {
   })
 
   return useQueries(queries)
+}
+
+export function useChangePersonName(options = {}) {
+  return useMutation(async ({ id, name }) => {
+    const command = new UpdateItemCommand({
+      TableName: config.DYNAMO_TABLE,
+      Key: {
+        PK: { S: id },
+        SK: { S: '#METADATA' }
+      },
+      UpdateExpression: 'SET #name=:name',
+      ExpressionAttributeValues: {
+        ':name': { S: name }
+      },
+      ExpressionAttributeNames: { '#name': 'name' }
+    })
+
+    const client = await getSignedClient(DynamoDBClient)
+    const response = await client.send(command)
+    return response
+  }, {
+    onSuccess: () => queryClient.refetchQueries(['all-persons-by-appareance-infinite']),
+    ...options
+  })
 }

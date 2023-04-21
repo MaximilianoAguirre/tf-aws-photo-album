@@ -6,6 +6,8 @@ import { useAllPhotosInfinite } from 'api/dynamo'
 import { CustomImage, StickyHeader, CustomSpinner, WrappedSpinner, ImagePreview } from 'components'
 import { useImageSize } from 'context'
 
+const dateFormatter = new Intl.DateTimeFormat("en-US", { month: "long", year: "2-digit" })
+
 export const AllPhotos = () => {
   const preview = useRef()
   const [currentPreview, setCurrentPreview] = useState(null)
@@ -15,6 +17,27 @@ export const AllPhotos = () => {
   // Process all pages returned by DynamoDB and create a single list of photos
   const photos = data?.pages.reduce((acc, curr) => {
     return acc.concat(curr.Items)
+  }, [])
+
+  // Add time dividers
+  const test = photos?.reduce((prev, curr) => {
+    const date = new Date(curr.timestamp.N * 1000)
+
+    if (prev.length === 0) {
+      prev.push({ divider: `${dateFormatter.format(date)}` })
+    }
+    else {
+      const last_date = new Date(prev[prev.length - 1].timestamp?.N * 1000)
+      const new_date = new Date(curr.timestamp.N * 1000)
+
+      if (last_date.getMonth() !== new_date.getMonth()) {
+        prev.push({ divider: `${dateFormatter.format(new_date)}` })
+      }
+    }
+
+    prev.push(curr)
+
+    return prev
   }, [])
 
   const openPreview = (photo) => {
@@ -50,13 +73,17 @@ export const AllPhotos = () => {
             next={() => fetchNextPage()}
             loader={<CustomSpinner />}
           >
-            <Divider orientation='left'>January &apos;22</Divider>
             <Row justify='center' align='bottom' gutter={[15, 15]} style={{ marginTop: '15px', marginBottom: '15px', width: '100%' }}>
-              {photos.map((photo) => (
-                <Col key={photo.PK.S}>
-                  <CustomImage photo={photo} width={width} onClick={openPreview} />
-                </Col>
-              ))}
+              {test.map((photo) => {
+                if (photo.divider) {
+                  return <Divider key={photo.divider} orientation='left'>{photo.divider}</Divider>
+                }
+                else {
+                  return <Col key={photo.PK.S}>
+                    <CustomImage photo={photo} width={width} onClick={openPreview} />
+                  </Col>
+                }
+              })}
             </Row>
           </InfiniteScroll>
           <ImagePreview ref={preview} photo={currentPreview} onNext={next} onPrev={prev} />

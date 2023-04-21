@@ -85,7 +85,8 @@ resource "aws_iam_policy" "contributor" {
   tags = local.tags
 
   policy = templatefile("${path.module}/iam/contributor.json", {
-    bucket_arn = module.photo_bucket.s3_bucket_arn
+    bucket_arn     = module.photo_bucket.s3_bucket_arn
+    dynamodb_table = aws_dynamodb_table.photo_tracker.arn
   })
 }
 

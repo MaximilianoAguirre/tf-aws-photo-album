@@ -10,6 +10,24 @@
                 "s3:DeleteObject"
             ],
             "Resource": "${bucket_arn}/*"
+        },
+        {
+            "Sid": "ChangeUserName",
+            "Effect": "Allow",
+            "Action": "dynamodb:UpdateItem",
+            "Resource": "${dynamodb_table}",
+            "Condition": {
+                "ForAllValues:StringLike": {
+                    "dynamodb:LeadingKeys": "#PERSON#*"
+                },
+                "ForAllValues:StringEquals": {
+                    "dynamodb:Attributes": [
+                        "name",
+                        "PK",
+                        "SK"
+                    ]
+                }
+            }
         }
     ]
 }

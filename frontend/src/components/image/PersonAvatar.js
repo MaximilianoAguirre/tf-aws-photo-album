@@ -3,12 +3,20 @@ import { Avatar } from 'antd'
 import { LoadingOutlined } from '@ant-design/icons'
 
 import { usePersonPhotos, usePhoto } from 'api/dynamo'
-import { useScaledPhotoURL } from 'api/s3'
+import { usePhotoComplete } from 'api/s3'
 
 export const PersonAvatar = ({ person_id, size = 64, style, onClick }) => {
   const { data, isLoading, isError } = usePersonPhotos(person_id, 1)
-  const { data: photoUrl } = useScaledPhotoURL(data?.[0].PK.S.replace('#S3#', ''), 768, { enabled: !isLoading })
+  const photos = usePhotoComplete(data?.[0].PK.S.replace('#S3#', ''), 1280, { enabled: !isLoading })
   const { data: photo, isLoading: isLoadingPhoto } = usePhoto(data?.[0].PK.S, { enabled: !isLoading })
+
+  // Filter photos loaded and choose the bigger one
+  const loaded_photos = photos.filter((photo) => photo.status === 'success')
+  const best_loaded_picture = loaded_photos.reduce((prev, curr) => {
+    if (prev?.data.width > curr.data.width) return prev
+    return curr
+  }, null)
+  const loading = best_loaded_picture === null
 
   const coord = useMemo(() => {
     if (isLoading || isError || isLoadingPhoto) return
@@ -28,13 +36,13 @@ export const PersonAvatar = ({ person_id, size = 64, style, onClick }) => {
     }
   }, [data, photo, isLoading, isError, isLoadingPhoto])
 
-  if (isLoading || isError || isLoadingPhoto) return <Avatar shape='square' size={size} icon={<LoadingOutlined />} />
+  if (isLoading || isError || isLoadingPhoto || loading) return <Avatar shape='square' size={size} icon={<LoadingOutlined />} />
 
   return (
     <Avatar
       src={
         <svg width={size} height={size} xmlns='http://www.w3.org/2000/svg'>
-          <image href={photoUrl} width={coord.w} height={coord.h} x={coord.x} y={coord.y} />
+          <image href={best_loaded_picture?.data.photo} width={coord.w} height={coord.h} x={coord.x} y={coord.y} />
         </svg>
       }
       style={style}

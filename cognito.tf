@@ -8,6 +8,12 @@ resource "aws_cognito_user_pool" "pool" {
   auto_verified_attributes = ["email"]
   tags                     = local.tags
 
+  lifecycle {
+    ignore_changes = [
+      account_recovery_setting
+    ]
+  }
+
   admin_create_user_config {
     allow_admin_create_user_only = true
 

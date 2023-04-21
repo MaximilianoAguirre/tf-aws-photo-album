@@ -10,7 +10,7 @@
 
 # config files
 public/config.js
-build/config.js
+build/
 
 # misc
 .DS_Store
