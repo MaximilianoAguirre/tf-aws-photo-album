@@ -4,6 +4,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { HomeOutlined } from '@ant-design/icons'
 
 import { CustomFooter } from 'components'
+import { useAuth } from 'context/auth'
 
 import logo from 'images/logo.png'
 
@@ -18,6 +19,7 @@ const titles = {
 }
 
 export const LoginLayout = () => {
+  const { isAuthenticating } = useAuth()
   const breakpoints = useBreakpoint()
   const { pathname } = useLocation()
   const navigate = useNavigate()
@@ -36,9 +38,10 @@ export const LoginLayout = () => {
           backgroundRepeat: 'no-repeat',
           backgroundSize: '90vh',
           backgroundPosition: 'center',
-          filter: 'blur(20px)',
+          filter: 'blur(30px)',
           opacity: '80%'
         }}
+        {...(isAuthenticating && { className: 'background-spin' })}
       />
       <Content style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px 5px' }}>
         <Card

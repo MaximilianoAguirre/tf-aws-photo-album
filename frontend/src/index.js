@@ -14,6 +14,7 @@ import 'leaflet-loading/src/Control.Loading.css'
 // Custom styles
 import 'styles/custom_scrollbar.css'
 import 'styles/antd_modal_fullscreen.css'
+import 'styles/login_background.css'
 
 const root = ReactDOM.createRoot(document.getElementById('root'))
 root.render(<App />)

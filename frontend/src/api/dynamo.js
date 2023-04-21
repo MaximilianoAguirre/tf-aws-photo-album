@@ -54,6 +54,31 @@ export function usePhoto(id, options = {}) {
   )
 }
 
+export function usePhotoPersons(id, limit = 20, options = {}) {
+  return useQuery(
+    ['photo-persons', id, limit],
+    async () => {
+      const command = new QueryCommand({
+        TableName: config.DYNAMO_TABLE,
+        Limit: limit,
+        KeyConditionExpression: 'PK=:PK AND begins_with(SK, :SK)',
+        ExpressionAttributeValues: {
+          ':PK': { S: id },
+          ':SK': { S: '#FACE' }
+        }
+      })
+
+      const client = await getSignedClient(DynamoDBClient)
+      const response = await client.send(command)
+      return response
+    },
+    {
+      ...options,
+      select: (response) => response.Items
+    }
+  )
+}
+
 export function useAllPersons(limit = null, options = {}) {
   return useQuery(
     ['all-persons', limit],
@@ -67,6 +92,32 @@ export function useAllPersons(limit = null, options = {}) {
         ExpressionAttributeValues: {
           ':SK': { S: '#METADATA' },
           ':PK': { S: '#PERSON' }
+        }
+      })
+
+      const client = await getSignedClient(DynamoDBClient)
+      const response = await client.send(command)
+      return response
+    },
+    {
+      ...options,
+      select: (data) => data.Items
+    }
+  )
+}
+
+export function useAllPersonsByAppearance(limit = null, options = {}) {
+  return useQuery(
+    ['all-persons-by-appearance', limit],
+    async () => {
+      const command = new QueryCommand({
+        TableName: config.DYNAMO_TABLE,
+        Limit: limit,
+        ScanIndexForward: false,
+        IndexName: 'GSI2',
+        KeyConditionExpression: 'GSI2PK=:GSI2PK',
+        ExpressionAttributeValues: {
+          ':GSI2PK': { S: '#APPEARANCES' }
         }
       })
 
@@ -109,7 +160,34 @@ export function useAllPersonsInfinite(limit = 100, options = {}) {
   )
 }
 
-export function usePersonPhotos(id, limit = 20, options = {}) {
+export function useAllPersonsByAppearanceInfinite(limit = null, options = {}) {
+  return useInfiniteQuery(
+    ['all-persons-by-appareance-infinite', limit],
+    async ({ pageParam = null }) => {
+      const command = new QueryCommand({
+        TableName: config.DYNAMO_TABLE,
+        Limit: limit,
+        ScanIndexForward: false,
+        ExclusiveStartKey: pageParam,
+        IndexName: 'GSI2',
+        KeyConditionExpression: 'GSI2PK=:GSI2PK',
+        ExpressionAttributeValues: {
+          ':GSI2PK': { S: '#APPEARANCES' }
+        }
+      })
+
+      const client = await getSignedClient(DynamoDBClient)
+      const response = await client.send(command)
+      return response
+    },
+    {
+      ...options,
+      getNextPageParam: (lastPage) => lastPage.LastEvaluatedKey
+    }
+  )
+}
+
+export function usePersonPhotos(id, limit = 200, options = {}) {
   return useQuery(
     ['person-photos', id, limit],
     async () => {
@@ -134,7 +212,7 @@ export function usePersonPhotos(id, limit = 20, options = {}) {
   )
 }
 
-export function usePersonPhotosInfinite(id, limit = 20, options = {}) {
+export function usePersonPhotosInfinite(id, limit = 200, options = {}) {
   return useInfiniteQuery(
     ['person-photos-infinite', id, limit],
     async ({ pageParam = null }) => {
@@ -160,7 +238,7 @@ export function usePersonPhotosInfinite(id, limit = 20, options = {}) {
   )
 }
 
-export function useAllPhotosInfinite(limit = 100, options = {}) {
+export function useAllPhotosInfinite(limit = 200, options = {}) {
   return useInfiniteQuery(
     ['all-photos-infinite', limit],
     async ({ pageParam = null }) => {
@@ -213,7 +291,7 @@ export function useLocatedPhotos(hash, { limit = null, options = {} } = {}) {
   )
 }
 
-export function useLocatedPhotosInfinite(hash, { limit = 20, options = {} } = {}) {
+export function useLocatedPhotosInfinite(hash, { limit = 200, options = {} } = {}) {
   return useInfiniteQuery(
     ['located-photos-infinite', hash, limit],
     async ({ pageParam = null }) => {

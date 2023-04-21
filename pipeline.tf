@@ -2,7 +2,7 @@
 # PIPELINE
 ########################################################
 resource "aws_codepipeline" "codepipeline" {
-  name     = "${local.dash_prefix}photo-bucket-pipeline"
+  name     = "${local.dash_prefix}frontend"
   role_arn = aws_iam_role.pipeline.arn
 
   artifact_store {
@@ -86,8 +86,8 @@ resource "aws_codepipeline" "codepipeline" {
 # BUILD
 ########################################################
 resource "aws_codebuild_project" "build" {
-  name         = "${local.dash_prefix}photo-bucket-build"
-  description  = "Photo bucket frontend build process"
+  name         = "${local.dash_prefix}frontend"
+  description  = "Photo album frontend build process"
   service_role = aws_iam_role.codebuild.arn
   tags         = local.tags
 
@@ -116,8 +116,8 @@ resource "aws_codebuild_project" "build" {
 # AUTO TRIGGER
 ########################################################
 resource "aws_cloudwatch_event_rule" "trigger_pipeline" {
-  name        = "${local.dash_prefix}photo-bucket-pipeline-trigger"
-  description = "Evento to trigger automatic builds of photo album frontend"
+  name        = "${local.dash_prefix}frontend-pipeline-trigger"
+  description = "Event to trigger automatic builds of photo album frontend"
   tags        = local.tags
 
   event_pattern = templatefile("${path.module}/cw/pipeline_trigger.json", {

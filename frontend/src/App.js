@@ -105,7 +105,7 @@ export const App = () => {
             <Route index element={<Login />} />
           </Route>
         </Routes>
-        <ReactQueryDevtools initialIsOpen={false} position='bottom-right' />
+        <ReactQueryDevtools initialIsOpen={false} position='bottom-left' />
       </Providers>
     </Router>
   )

@@ -2,7 +2,7 @@
 # USER POOL AND WEB CLIENT
 ########################################################
 resource "aws_cognito_user_pool" "pool" {
-  name                     = "${local.dash_prefix}photo-bucket"
+  name                     = "${local.dash_prefix}users"
   mfa_configuration        = "OFF"
   username_attributes      = ["email"]
   auto_verified_attributes = ["email"]
@@ -17,7 +17,7 @@ resource "aws_cognito_user_pool" "pool" {
 
       email_message = templatefile("${path.module}/cognito/invitation.html", {
         name = "Photo album"
-        url  = var.route53_public_zone_id == null ? aws_cloudfront_distribution.frontend_cloudfront.domain_name : "${var.route53_subdomain}${data.aws_route53_zone.public_zone[0].name}"
+        url  = local.dns
       })
     }
   }
@@ -27,7 +27,7 @@ resource "aws_cognito_user_pool" "pool" {
 
     email_message = templatefile("${path.module}/cognito/reset.html", {
       name = "Photo album"
-      url  = var.route53_public_zone_id == null ? aws_cloudfront_distribution.frontend_cloudfront.domain_name : "${var.route53_subdomain}${data.aws_route53_zone.public_zone[0].name}"
+      url  = local.dns
     })
   }
 
@@ -42,12 +42,12 @@ resource "aws_cognito_user_pool" "pool" {
 }
 
 resource "aws_cognito_user_pool_client" "poolclient" {
-  name         = "${local.dash_prefix}photo-bucket"
+  name         = "${local.dash_prefix}client"
   user_pool_id = aws_cognito_user_pool.pool.id
 }
 
 resource "aws_cognito_identity_pool" "identitypool" {
-  identity_pool_name               = "${local.dash_prefix}photo-bucket"
+  identity_pool_name               = "${local.dash_prefix}identity"
   allow_unauthenticated_identities = false
   tags                             = local.tags
 

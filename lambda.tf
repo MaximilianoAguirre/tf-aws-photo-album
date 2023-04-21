@@ -21,7 +21,7 @@ module "image_processor" {
   layers                            = [aws_lambda_layer_version.python38_image_processor.arn]
   tags                              = local.tags
   publish                           = true
-  recreate_missing_package          = false
+  recreate_missing_package          = true
   ignore_source_code_hash           = true
   attach_policy_statements          = true
   cloudwatch_logs_retention_in_days = 14
@@ -78,12 +78,13 @@ module "image_processor_rekognition" {
   artifacts_dir                     = "${path.module}/builds"
   tags                              = local.tags
   publish                           = true
-  recreate_missing_package          = false
+  recreate_missing_package          = true
   ignore_source_code_hash           = true
   attach_policy_statements          = true
   cloudwatch_logs_retention_in_days = 14
   timeout                           = 240
   attach_policy                     = true
+  reserved_concurrent_executions    = 1
   policy                            = "arn:aws:iam::aws:policy/service-role/AWSLambdaSQSQueueExecutionRole"
 
   event_source_mapping = {
@@ -134,7 +135,7 @@ module "image_deletion" {
   source  = "terraform-aws-modules/lambda/aws"
   version = "4.2.0"
 
-  function_name                     = "${local.dash_prefix}image-deletion"
+  function_name                     = "${local.dash_prefix}image-deletion-handler"
   description                       = "Lambda to process objects deleted from photo bucket"
   handler                           = "main.lambda_handler"
   runtime                           = "python3.8"
@@ -142,7 +143,7 @@ module "image_deletion" {
   artifacts_dir                     = "${path.module}/builds"
   tags                              = local.tags
   publish                           = true
-  recreate_missing_package          = false
+  recreate_missing_package          = true
   ignore_source_code_hash           = true
   attach_policy_statements          = true
   cloudwatch_logs_retention_in_days = 14
@@ -198,7 +199,7 @@ module "cloudfront_invalidator" {
   artifacts_dir                     = "${path.module}/builds"
   tags                              = local.tags
   publish                           = true
-  recreate_missing_package          = false
+  recreate_missing_package          = true
   ignore_source_code_hash           = true
   attach_policy_statements          = true
   cloudwatch_logs_retention_in_days = 14

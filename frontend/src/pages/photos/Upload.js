@@ -21,7 +21,6 @@ export const UploadFiles = () => {
           multiple={true}
           accept='.jpeg,.jpg'
           listType='picture-card'
-          // className='upload-list-inline'
           progress={{
             strokeWidth: 2,
             showInfo: true,

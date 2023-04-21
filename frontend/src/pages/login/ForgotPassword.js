@@ -25,7 +25,7 @@ export const ForgotPassword = () => {
         Auth.forgotPasswordSubmit(username, code, new_password)
           .then(() => {
             message.success('Password changed successfully')
-            navigate('/login')
+            navigate(`/login?username=${username}`)
           })
           .catch((err) => message.error(err.message))
           .finally(() => setChangingPassword(false))

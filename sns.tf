@@ -1,5 +1,5 @@
 resource "aws_sns_topic" "photo_album_create" {
-  name = "${local.dash_prefix}photo-album-create"
+  name = "${local.dash_prefix}create"
   tags = local.tags
 }
 
@@ -7,7 +7,7 @@ resource "aws_sns_topic_policy" "photo_album_create" {
   arn = aws_sns_topic.photo_album_create.arn
 
   policy = templatefile("${path.module}/iam/sns_photo_bucket.json", {
-    topic_name = "${local.dash_prefix}photo-album-create"
+    topic_name = "${local.dash_prefix}create"
     bucket_arn = module.photo_bucket.s3_bucket_arn
   })
 }

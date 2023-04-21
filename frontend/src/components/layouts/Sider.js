@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Layout, Menu, Badge } from 'antd'
+import { Button, Layout, Menu } from 'antd'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { MdOutlineVideoCameraFront } from 'react-icons/md'
 

@@ -17,6 +17,7 @@ export const UserDrawer = () => {
     <Drawer
       title={userId}
       open={opened}
+      placement='left'
       onClose={() => close()}
       footer={
         <>

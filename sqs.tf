@@ -1,5 +1,5 @@
 resource "aws_sqs_queue" "rekognition" {
-  name                       = "${local.dash_prefix}photo-album-rekognition"
+  name                       = "${local.dash_prefix}rekognition"
   fifo_queue                 = false
   tags                       = local.tags
   visibility_timeout_seconds = 480

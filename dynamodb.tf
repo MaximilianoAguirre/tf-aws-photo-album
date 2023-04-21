@@ -1,8 +1,8 @@
 ########################################################
-# PHOTO INFO TABLE
+# MEDIA TRACKER TABLE
 ########################################################
 resource "aws_dynamodb_table" "photo_tracker" {
-  name             = "${local.dash_prefix}photo-tracker"
+  name             = "${local.dash_prefix}media-tracker"
   billing_mode     = "PAY_PER_REQUEST"
   hash_key         = "PK"
   range_key        = "SK"

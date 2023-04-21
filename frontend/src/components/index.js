@@ -8,7 +8,8 @@ import { UserButton } from './layouts/UserButton'
 import { CustomSpinner, WrappedSpinner } from './layouts/CustomSpinner'
 import { PersonAvatar } from './image/PersonAvatar'
 
-import { CustomImage, CustomImageFromId } from './image/Image'
+import { CustomImage } from './image/Image'
+import { FullScreenPhoto } from './image/ImageFullscreen'
 import { ImageDrawer } from './image/ImageDrawer'
 import { ImagePreview } from './image/ImagePreview'
 import { Frame } from './image/Frame'
@@ -35,7 +36,6 @@ export {
   MainLayout,
   LoginLayout,
   CustomImage,
-  CustomImageFromId,
   Frame,
   ChooseSizeRadio,
   ImageDrawer,
@@ -46,5 +46,6 @@ export {
   ContributorRoute,
   ReaderRoute,
   NoRoleRoute,
-  LocatedMap
+  LocatedMap,
+  FullScreenPhoto
 }

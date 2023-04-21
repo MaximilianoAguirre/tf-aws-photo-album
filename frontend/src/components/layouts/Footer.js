@@ -7,9 +7,9 @@ const { Link } = Typography
 export const CustomFooter = () => {
   return (
     <Footer style={{ textAlign: 'center' }}>
-      Photo Gallery - By{' '}
+      Photo Album - By{' '}
       <Link href='https://www.linkedin.com/in/MaximilianoAguirre/' target='_blank'>
-        Maximiliano Aguirre
+        Maxi Aguirre
       </Link>
     </Footer>
   )

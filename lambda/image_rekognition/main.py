@@ -1,4 +1,5 @@
 import boto3
+import time
 import json
 import os
 import urllib.parse
@@ -37,6 +38,8 @@ def process_with_rekognition(key):
             },
         )
 
+        # Wait a couple of seconds to allow Rekognition to process the face
+        time.sleep(2)
         # Find which person this face belongs to
         match = rekognition_client.search_faces(
             CollectionId=REKOGNITION_COLLECTION, MaxFaces=1, FaceId=face_id
@@ -58,13 +61,23 @@ def process_with_rekognition(key):
             ).get("Items")[0]
             print(f"Person associated with match is: {person.get('PK').get('S')}")
 
+            # Update person number of appearances
+            dynamo_client.update_item(
+                TableName=PHOTO_TABLE,
+                Key={"PK": person.get("PK"), "SK": {"S": "#METADATA"}},
+                UpdateExpression=f"SET GSI2SK = GSI2SK + :GSI2SK",
+                ExpressionAttributeValues={
+                    ":GSI2SK": {"N": "1"},
+                },
+            )
+
             # Update face record with person information (for GSI1)
             dynamo_client.update_item(
                 TableName=PHOTO_TABLE,
                 Key={"PK": {"S": f"#S3#{key}"}, "SK": {"S": f"#FACE#{face_id}"}},
                 UpdateExpression=f"SET GSI1PK=:GSI1PK, GSI1SK=:GSI1SK",
                 ExpressionAttributeValues={
-                    ":GSI1PK": {"S": person.get("PK").get("S")},
+                    ":GSI1PK": person.get("PK"),
                     ":GSI1SK": {"S": f"#S3#{key}"},
                 },
             )
@@ -73,7 +86,7 @@ def process_with_rekognition(key):
             dynamo_client.update_item(
                 TableName=PHOTO_TABLE,
                 Key={
-                    "PK": {"S": person.get("PK").get("S")},
+                    "PK": person.get("PK"),
                     "SK": {"S": f"#FACE#{face_id}"},
                 },
                 UpdateExpression=f"SET confidence=:confidence",
@@ -91,9 +104,11 @@ def process_with_rekognition(key):
             dynamo_client.update_item(
                 TableName=PHOTO_TABLE,
                 Key={"PK": {"S": f"#PERSON#{face_id}"}, "SK": {"S": "#METADATA"}},
-                UpdateExpression=f"SET #name=:name",
+                UpdateExpression=f"SET #name=:name, GSI2PK=:GSI2PK, GSI2SK=:GSI2SK",
                 ExpressionAttributeValues={
                     ":name": {"S": face_id},
+                    ":GSI2PK": {"S": "#APPEARANCES"},
+                    ":GSI2SK": {"N": "1"},
                 },
                 ExpressionAttributeNames={"#name": "name"},
             )
@@ -128,9 +143,14 @@ def lambda_handler(event, context):
     for record in event["Records"]:
         message = json.loads(json.loads(record["body"])["Message"])
 
-        key = urllib.parse.unquote_plus(
-            message["Records"][0]["s3"]["object"]["key"], encoding="utf-8"
-        )
+        try:
+            key = urllib.parse.unquote_plus(
+                message["Records"][0]["s3"]["object"]["key"], encoding="utf-8"
+            )
+        except:
+            print("Unable to get images to process")
+            return
+
         print(f"Processing image {key}")
 
         process_with_rekognition(key)

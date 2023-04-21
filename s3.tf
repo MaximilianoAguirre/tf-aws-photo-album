@@ -5,25 +5,25 @@ module "photo_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "3.4.0"
 
-  bucket_prefix = "${local.dash_prefix}photo-bucket-"
+  bucket_prefix = "${local.dash_prefix}photos-"
   acl           = "private"
   tags          = local.tags
   force_destroy = true
 }
 
-module "photo_assets_bucket" {
-  source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "3.4.0"
+resource "aws_s3_bucket_cors_configuration" "photo_bucket" {
+  bucket = module.photo_bucket.s3_bucket_id
 
-  bucket_prefix = "${local.dash_prefix}photo-assets-bucket-"
-  acl           = "private"
-  tags          = local.tags
-  force_destroy = true
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["PUT", "POST", "HEAD", "GET", "DELETE"]
+    allowed_origins = concat(["https://${local.dns}"], var.enable_dev ? ["http://localhost"] : [])
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
+  }
 }
 
-########################################################
-# PHOTO BUCKET TRIGGERS
-########################################################
+# Triggers
 resource "aws_s3_bucket_notification" "s3_triggers" {
   bucket = module.photo_bucket.s3_bucket_id
 
@@ -39,13 +39,38 @@ resource "aws_s3_bucket_notification" "s3_triggers" {
 }
 
 ########################################################
+# ASSETS BUCKET
+########################################################
+module "photo_assets_bucket" {
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "3.4.0"
+
+  bucket_prefix = "${local.dash_prefix}assets-"
+  acl           = "private"
+  tags          = local.tags
+  force_destroy = true
+}
+
+resource "aws_s3_bucket_cors_configuration" "photo_assets_bucket" {
+  bucket = module.photo_assets_bucket.s3_bucket_id
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["PUT", "POST", "HEAD", "GET", "DELETE"]
+    allowed_origins = concat(["https://${local.dns}"], var.enable_dev ? ["http://localhost"] : [])
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
+  }
+}
+
+########################################################
 # WEBPAGE HOST BUCKET
 ########################################################
 module "web_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "3.4.0"
 
-  bucket_prefix = "${local.dash_prefix}web-host-bucket-"
+  bucket_prefix = "${local.dash_prefix}web-host-"
   acl           = "private"
   tags          = local.tags
   force_destroy = true
@@ -67,7 +92,7 @@ module "web_build_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "3.4.0"
 
-  bucket_prefix = "${local.dash_prefix}web-build-bucket-"
+  bucket_prefix = "${local.dash_prefix}web-build-"
   acl           = "private"
   tags          = local.tags
   force_destroy = true
@@ -91,12 +116,9 @@ resource "aws_s3_object" "frontend_build_source" {
 }
 
 ########################################################
-# WEBPAGE HOST S3 OBJECTS
+# FRONTEND CONFIGURATION FILE
 ########################################################
 locals {
-  mime_types          = jsondecode(file("${path.module}/util/mime.json"))
-  frontend_build_path = "${path.module}/frontend/build"
-
   frontend_config = templatefile("${path.module}/config/config.js", {
     aws_region                   = data.aws_region.current.name
     dynamo_table                 = aws_dynamodb_table.photo_tracker.id
@@ -109,7 +131,7 @@ locals {
 }
 
 resource "local_file" "react_config_dev" {
-  count = var.create_dev_config_file ? 1 : 0
+  count = var.enable_dev ? 1 : 0
 
   filename = "${path.module}/frontend/public/config.js"
   content  = local.frontend_config

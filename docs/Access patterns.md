@@ -20,7 +20,7 @@
 | Get all s3 objects by geohash         | GSI1     | #GEOHASH     | begins_with(<hash>)  |
 | Get all faces in a s3 object          | Main     | #S3#<id>     | begins_with(#FACE)   |
 | Get person                            | Inverted | #METADATA    | #PERSON#<person_id>  |
-| Get all perons                        | Inverted | #METADATA    | begins_with(#PERSON) |
+| Get all persons                       | Inverted | #METADATA    | begins_with(#PERSON) |
 | Get all s3 objects of a person        | GSI1     | #PERSON#<id> |                      |
 
 ## Write patterns

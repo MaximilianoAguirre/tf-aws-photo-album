@@ -3,13 +3,13 @@
 #########################################################################################
 variable "prefix" {
   type        = string
-  default     = null
+  default     = "photoalbum"
   description = "Prefix to add to all resources"
 }
 
 locals {
-  dash_prefix  = var.prefix != null ? "${var.prefix}-" : ""
-  slash_prefix = var.prefix != null ? "/${var.prefix}/" : "/"
+  dash_prefix  = var.prefix != null && var.prefix != "" ? "${var.prefix}-" : ""
+  slash_prefix = var.prefix != null && var.prefix != "" ? "/${var.prefix}/" : "/"
 }
 
 variable "tags" {
@@ -20,17 +20,17 @@ variable "tags" {
 
 locals {
   tags = merge(var.tags, {
-    application = "photo-album-app"
+    application = "Photo Album"
   })
 }
 
 #########################################################################################
 # DEV
 #########################################################################################
-variable "create_dev_config_file" {
+variable "enable_dev" {
   type        = bool
   default     = false
-  description = "Create development configuration file for frontend"
+  description = "Configure resources to allow development"
 }
 
 #########################################################################################

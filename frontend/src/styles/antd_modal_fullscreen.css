@@ -4,6 +4,7 @@
   width: 100vw !important;
   margin: 0 !important;
   top: 0 !important;
+  border-radius: 0;
 }
 
 .fullscreen-modal .ant-modal-body {

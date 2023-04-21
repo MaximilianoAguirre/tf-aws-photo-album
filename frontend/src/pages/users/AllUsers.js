@@ -1,14 +1,14 @@
 import React, { useState } from 'react'
-import { Input, List, Avatar, Tag, Button, Dropdown, Grid, message, Typography, Col, Modal, Form } from 'antd'
+import { Input, Tooltip, Avatar, Tag, Button, Dropdown, message, Col, Row, Card, Modal, Form } from 'antd'
 import {
   MailOutlined,
   UserOutlined,
   DeleteOutlined,
-  SyncOutlined,
   UserSwitchOutlined,
   UserAddOutlined,
   CloseCircleOutlined,
-  CheckCircleOutlined
+  CheckCircleOutlined,
+  LoadingOutlined
 } from '@ant-design/icons'
 import InfiniteScroll from 'react-infinite-scroll-component'
 
@@ -25,11 +25,9 @@ import { StickyHeader, WrappedSpinner, CustomSpinner } from 'components'
 import { get_user_roles, useAuth } from 'context/auth'
 import { queryClient } from 'context'
 
-const { useBreakpoint } = Grid
-const { Text } = Typography
+const { Meta } = Card
 
 export const AllUsers = () => {
-  const breakpoints = useBreakpoint()
   const { user } = useAuth()
   const { data, isLoading, fetchNextPage, hasNextPage } = useAllUsersInfinite()
   const [userCreateOpen, setUserCreateOpen] = useState(false)
@@ -66,7 +64,7 @@ export const AllUsers = () => {
         <WrappedSpinner />
       ) : (
         <InfiniteScroll
-          style={{ width: '100%', padding: '5px' }}
+          style={{ padding: '15px' }}
           height='calc(100vh - 56px)'
           dataLength={users.length}
           hasChildren={users.length}
@@ -74,48 +72,34 @@ export const AllUsers = () => {
           next={() => fetchNextPage()}
           loader={<CustomSpinner />}
         >
-          <List
-            itemLayout={breakpoints['md'] ? 'horizontal' : 'vertical'}
-            style={{ margin: '15px' }}
-            dataSource={users}
-            renderItem={(item) => (
-              <List.Item
-                actions={[
-                  <UserRoleDropdown key='dropdown' user_id={item.Username} />,
-                  <EnableUserButton key='enableButton' user_id={item.Username} user_enabled={item.Enabled} />,
-                  <DeleteUserButton key='deleteButtom' user_id={item.Username} />
-                ]}
-              >
-                <List.Item.Meta
-                  title={item.Attributes.find((attr) => attr.Name === 'email').Value}
-                  avatar={<Avatar icon={<UserOutlined />} style={{ backgroundColor: item.Enabled ? 'green' : 'red' }} shape='square' />}
-                  description={
-                    <List
-                      itemLayout='vertical'
-                      renderItem={(item) => <List.Item>{item}</List.Item>}
-                      dataSource={[
+          <Row gutter={[10, 10]} style={{ margin: 0, width: '100%' }}>
+            {users.map((user) => {
+              const email = user.Attributes.find((attr) => attr.Name === 'email').Value
+              const status = capitalize(user.UserStatus.replaceAll('_', ' '))
+
+              return (
+                <Col key={email}>
+                  <Card
+                    extra={[<UserRoleDropdown key='dropdown' user_id={user.Username} />]}
+                    title={email}
+                    actions={[
+                      <EnableUserButton key='enableButton' user_id={user.Username} user_enabled={user.Enabled} />,
+                      <DeleteUserButton key='deleteButtom' user_id={user.Username} />
+                    ]}
+                  >
+                    <Meta
+                      avatar={<Avatar icon={<UserOutlined />} style={{ backgroundColor: user.Enabled ? 'green' : 'red' }} shape='square' />}
+                      description={
                         <>
-                          ID:{' '}
-                          <Text italic copyable>
-                            {item.Username}
-                          </Text>
-                        </>,
-                        <>
-                          Account status:{' '}
-                          <>
-                            <Tag>{capitalize(item.UserStatus.replaceAll('_', ' '))}</Tag> {!item.Enabled && <Tag color='red'>Disabled</Tag>}
-                          </>
-                        </>,
-                        <>
-                          Role: <UserRole user_id={item.Username} />
+                          <Tag>{status}</Tag> {!user.Enabled && <Tag color='red'>Disabled</Tag>}
                         </>
-                      ]}
+                      }
                     />
-                  }
-                />
-              </List.Item>
-            )}
-          />
+                  </Card>
+                </Col>
+              )
+            })}
+          </Row>
         </InfiniteScroll>
       )}
       <Modal
@@ -160,10 +144,12 @@ const DeleteUserButton = ({ user_id }) => {
     }
   })
 
-  return (
-    <Button danger type='primary' icon={<DeleteOutlined />} loading={deleteUser.isLoading} onClick={() => deleteUser.mutate(user_id)}>
-      Delete
-    </Button>
+  return deleteUser.isLoading ? (
+    <LoadingOutlined />
+  ) : (
+    <Tooltip title='Delete'>
+      <DeleteOutlined onClick={() => deleteUser.mutate(user_id)} />
+    </Tooltip>
   )
 }
 
@@ -188,17 +174,16 @@ const EnableUserButton = ({ user_id, user_enabled }) => {
     }
   })
 
-  return (
-    <Button
-      danger={user_enabled}
-      type='primary'
-      icon={!user_enabled ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
-      style={!user_enabled ? { backgroundColor: 'green' } : {}}
-      loading={enableUser.isLoading || disableUser.isLoading}
-      onClick={() => (user_enabled ? disableUser.mutate(user_id) : enableUser.mutate(user_id))}
-    >
-      {user_enabled ? 'Disable' : 'Enable'}
-    </Button>
+  return enableUser.isLoading || disableUser.isLoading ? (
+    <LoadingOutlined />
+  ) : !user_enabled ? (
+    <Tooltip title='Enable'>
+      <CheckCircleOutlined onClick={() => enableUser.mutate(user_id)} />
+    </Tooltip>
+  ) : (
+    <Tooltip title='Disable'>
+      <CloseCircleOutlined onClick={() => disableUser.mutate(user_id)} />
+    </Tooltip>
   )
 }
 
@@ -245,21 +230,10 @@ const UserRoleDropdown = ({ user_id }) => {
         onClick: ({ key }) => changeUserRole.mutate({ user_id, old_group: role, new_group: key })
       }}
     >
-      <Button type='primary' icon={<UserSwitchOutlined />} loading={isLoading || changeUserRole.isLoading}>
-        Change role
+      <Button style={{ marginLeft: '5px' }} type='primary' icon={<UserSwitchOutlined />} loading={isLoading || changeUserRole.isLoading}>
+        {(role && capitalize(role)) || 'Loading...'}
       </Button>
     </Dropdown>
-  )
-}
-
-const UserRole = ({ user_id }) => {
-  const { data, isLoading } = useAllUserGroups(user_id)
-  const role = !isLoading && get_user_roles(data.map((group) => group.GroupName))
-
-  return (
-    <Tag icon={isLoading && <SyncOutlined spin />} color='blue'>
-      {role ? capitalize(role) : 'Loading...'}
-    </Tag>
   )
 }
 

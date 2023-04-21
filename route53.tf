@@ -34,3 +34,7 @@ resource "aws_route53_record" "cert_validator" {
   type            = each.value.type
   zone_id         = data.aws_route53_zone.public_zone[0].zone_id
 }
+
+locals {
+  dns = var.route53_public_zone_id == null ? aws_cloudfront_distribution.frontend_cloudfront.domain_name : "${var.route53_subdomain}${data.aws_route53_zone.public_zone[0].name}"
+}

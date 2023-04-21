@@ -12,7 +12,7 @@ export const PublicRoute = ({ children }) => {
   const from = location.state?.from || '/'
 
   if (!isAuthenticated) {
-    // Close websocket connection and clear cache
+    // Clear cache
     queryClient.clear()
 
     return children
