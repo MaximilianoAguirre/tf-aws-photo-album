@@ -1,17 +1,22 @@
 import React, { useState } from 'react'
 import { Drawer, Button, Modal, Form, Input, Tag, List, Typography, Switch, Divider } from 'antd'
 import { CheckCircleOutlined, CloseCircleOutlined, LogoutOutlined, EditOutlined, BulbOutlined } from '@ant-design/icons'
+import { useNavigate } from 'react-router-dom'
 
 import { useAuth, useUserDrawer, useTheme } from 'context'
+import { useUserPerson } from 'api/dynamo'
+import { PersonAvatar } from 'components'
 
 const { Text } = Typography
 
 export const UserDrawer = () => {
   const [form] = Form.useForm()
+  const navigate = useNavigate()
   const { opened, close } = useUserDrawer()
   const { theme, setTheme } = useTheme()
   const { userId, logout, isLoggingOut, changePassword, isChangingPassword, userRole, user } = useAuth()
   const [changePwdModal, setChangePwdModal] = useState(false)
+  const { data: person, isLoading: isLoadingPerson } = useUserPerson(userId)
 
   return (
     <Drawer
@@ -41,6 +46,17 @@ export const UserDrawer = () => {
         </>
       }
     >
+      {!isLoadingPerson && person && (
+        <PersonAvatar
+          person_id={person.PK.S}
+          size={200}
+          style={{ cursor: 'pointer' }}
+          onClick={() => {
+            navigate(`/person/${encodeURIComponent(person.PK.S)}`)
+            close()
+          }}
+        />
+      )}
       <List
         itemLayout='vertical'
         renderItem={(item) => <List.Item>{item}</List.Item>}
@@ -53,7 +69,8 @@ export const UserDrawer = () => {
           </>,
           <>
             Role: <Tag color='blue'>{capitalize(userRole)}</Tag>
-          </>
+          </>,
+          ...(!isLoadingPerson && person ? [<>Alias: {person.name?.S}</>, <>Photos: {person.GSI2SK?.N}</>] : [])
         ]}
       />
       <Modal

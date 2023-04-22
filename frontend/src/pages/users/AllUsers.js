@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Input, Tooltip, Avatar, Tag, Button, Dropdown, message, Col, Row, Card, Modal, Form } from 'antd'
+import { Input, Tooltip, Avatar, Tag, Button, Dropdown, message, Col, Row, Card, Modal, Form, Empty } from 'antd'
 import {
   MailOutlined,
   UserOutlined,
@@ -62,6 +62,8 @@ export const AllUsers = () => {
       </StickyHeader>
       {isLoading ? (
         <WrappedSpinner />
+      ) : !users.length ? (
+        <Empty style={{ marginTop: '15px' }} description='No users' />
       ) : (
         <InfiniteScroll
           style={{ padding: '15px' }}

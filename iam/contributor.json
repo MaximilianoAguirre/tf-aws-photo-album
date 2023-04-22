@@ -24,7 +24,9 @@
                     "dynamodb:Attributes": [
                         "name",
                         "PK",
-                        "SK"
+                        "SK",
+                        "GSI1PK",
+                        "GSI1SK"
                     ]
                 }
             }

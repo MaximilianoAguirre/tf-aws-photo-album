@@ -1,10 +1,12 @@
 import React from 'react'
 import { Empty, Col, Row, Card, Typography } from 'antd'
+import { LoadingOutlined, EditOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import InfiniteScroll from 'react-infinite-scroll-component'
 
 import { useAllPersonsByAppearanceInfinite, useChangePersonName } from 'api/dynamo'
 import { StickyHeader, WrappedSpinner, CustomSpinner, PersonAvatar } from 'components'
+import { useAuth } from 'context/auth'
 
 const { Paragraph } = Typography
 
@@ -63,16 +65,23 @@ export const AllPersons = () => {
 
 const PersonName = ({ id, name }) => {
   const changeName = useChangePersonName()
+  const { userRole } = useAuth()
 
   return (
     <Paragraph
       strong
       ellipsis={{ tooltip: true }}
-      editable={{
-        onChange: (name) => changeName.mutate({ id, name }),
-        tooltip: false,
-        autoSize: { maxRows: 1 }
-      }}
+      editable={
+        ['admin', 'contributor'].includes(userRole)
+          ? {
+              onChange: (name) => changeName.mutate({ id, name }),
+              tooltip: false,
+              autoSize: { maxRows: 1 },
+              icon: changeName.isLoading ? <LoadingOutlined /> : <EditOutlined />,
+              ...(changeName.isLoading && { editing: false })
+            }
+          : false
+      }
     >
       {name}
     </Paragraph>

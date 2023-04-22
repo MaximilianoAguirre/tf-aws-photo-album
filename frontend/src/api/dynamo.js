@@ -51,7 +51,7 @@ export function usePhoto(id, options = {}) {
     {
       ...options,
       select: (data) => data.Items[0],
-      staleTime: 300 * 1000,
+      staleTime: 300 * 1000
     }
   )
 }
@@ -210,7 +210,7 @@ export function usePersonPhotos(id, limit = 200, options = {}) {
     {
       ...options,
       select: (response) => response.Items,
-      staleTime: 300 * 1000,
+      staleTime: 300 * 1000
     }
   )
 }
@@ -294,6 +294,33 @@ export function useLocatedPhotos(hash, { limit = null, options = {} } = {}) {
   )
 }
 
+export function useUserPerson(email, options = {}) {
+  return useQuery(
+    ['user-person', email],
+    async () => {
+      const command = new QueryCommand({
+        TableName: config.DYNAMO_TABLE,
+        Limit: 1,
+        IndexName: 'GSI1',
+        KeyConditionExpression: 'GSI1PK=:GSI1PK AND GSI1SK=:GSI1SK',
+        ExpressionAttributeValues: {
+          ':GSI1PK': { S: '#USER' },
+          ':GSI1SK': { S: email }
+        }
+      })
+
+      const client = await getSignedClient(DynamoDBClient)
+      const response = await client.send(command)
+
+      if (response.Items) return response.Items[0]
+      return null
+    },
+    {
+      ...options
+    }
+  )
+}
+
 export function useLocatedPhotosInfinite(hash, { limit = 200, options = {} } = {}) {
   return useInfiniteQuery(
     ['located-photos-infinite', hash, limit],
@@ -351,25 +378,29 @@ export function useLocatedPhotoslList(hashes, { limit = null, options = {} } = {
 }
 
 export function useChangePersonName(options = {}) {
-  return useMutation(async ({ id, name }) => {
-    const command = new UpdateItemCommand({
-      TableName: config.DYNAMO_TABLE,
-      Key: {
-        PK: { S: id },
-        SK: { S: '#METADATA' }
-      },
-      UpdateExpression: 'SET #name=:name',
-      ExpressionAttributeValues: {
-        ':name': { S: name }
-      },
-      ExpressionAttributeNames: { '#name': 'name' }
-    })
+  return useMutation(
+    async ({ id, name }) => {
+      const command = new UpdateItemCommand({
+        TableName: config.DYNAMO_TABLE,
+        Key: {
+          PK: { S: id },
+          SK: { S: '#METADATA' }
+        },
+        UpdateExpression: 'SET #name=:name',
+        ExpressionAttributeValues: {
+          ':name': { S: name }
+        },
+        ExpressionAttributeNames: { '#name': 'name' }
+      })
 
-    const client = await getSignedClient(DynamoDBClient)
-    const response = await client.send(command)
-    return response
-  }, {
-    onSuccess: () => queryClient.refetchQueries(['all-persons-by-appareance-infinite']),
-    ...options
-  })
+      const client = await getSignedClient(DynamoDBClient)
+      const response = await client.send(command)
+      return response
+    },
+    {
+      onSuccess: () => queryClient.refetchQueries(['all-persons-by-appareance-infinite']),
+      onError: () => queryClient.refetchQueries(['all-persons-by-appareance-infinite']),
+      ...options
+    }
+  )
 }
