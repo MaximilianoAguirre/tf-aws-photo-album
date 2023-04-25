@@ -45,7 +45,7 @@ export const CustomImage = ({ photo, width, style, rootClassName, onClick }) => 
       <div onClick={() => onClick && onClick(photo)}>
         {loading ? (
           photo.blurhash ? (
-            <Blurhash hash={photo.blurhash?.S} width={final_width} height={height} />
+            <Blurhash hash={photo.blurhash?.S} width={final_width} height={height} style={{ cursor: 'pointer' }} />
           ) : null
         ) : (
           <Image

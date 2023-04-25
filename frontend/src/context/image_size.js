@@ -1,8 +1,9 @@
 import React, { useState, useContext, createContext, useEffect } from 'react'
 import { Grid } from 'antd'
+import createPersistedState from "use-persisted-state"
 
 const { useBreakpoint } = Grid
-
+const useImageSizeState = createPersistedState("image-size")
 const ImageSizeContext = createContext()
 
 export function useImageSize() {
