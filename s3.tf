@@ -11,6 +11,15 @@ module "photo_bucket" {
   force_destroy = true
 }
 
+resource "aws_s3_bucket_policy" "photo_bucket" {
+  bucket = module.photo_bucket.s3_bucket_id
+
+  policy = templatefile("${path.module}/iam/cloudfront_bucket_access.json", {
+    cloudfront_distribution = aws_cloudfront_distribution.frontend_cloudfront.arn
+    bucket                  = module.photo_bucket.s3_bucket_id
+  })
+}
+
 resource "aws_s3_bucket_cors_configuration" "photo_bucket" {
   bucket = module.photo_bucket.s3_bucket_id
 
@@ -51,6 +60,15 @@ module "photo_assets_bucket" {
   force_destroy = true
 }
 
+resource "aws_s3_bucket_policy" "photo_assets_bucket" {
+  bucket = module.photo_assets_bucket.s3_bucket_id
+
+  policy = templatefile("${path.module}/iam/cloudfront_bucket_access.json", {
+    cloudfront_distribution = aws_cloudfront_distribution.frontend_cloudfront.arn
+    bucket                  = module.photo_assets_bucket.s3_bucket_id
+  })
+}
+
 resource "aws_s3_bucket_cors_configuration" "photo_assets_bucket" {
   bucket = module.photo_assets_bucket.s3_bucket_id
 
@@ -79,9 +97,9 @@ module "web_bucket" {
 resource "aws_s3_bucket_policy" "web_bucket_policy" {
   bucket = module.web_bucket.s3_bucket_id
 
-  policy = templatefile("${path.module}/iam/web_bucket_policy.json", {
-    cloudfront_oai = aws_cloudfront_origin_access_identity.photo_album.iam_arn
-    bucket_arn     = module.web_bucket.s3_bucket_arn
+  policy = templatefile("${path.module}/iam/cloudfront_bucket_access.json", {
+    cloudfront_distribution = aws_cloudfront_distribution.frontend_cloudfront.arn
+    bucket                  = module.web_bucket.s3_bucket_id
   })
 }
 
@@ -119,7 +137,7 @@ resource "aws_s3_object" "frontend_build_source" {
 # FRONTEND CONFIGURATION FILE
 ########################################################
 locals {
-  frontend_config = templatefile("${path.module}/config/config.js", {
+  frontend_config_dev = templatefile("${path.module}/config/config.js", {
     aws_region                   = data.aws_region.current.name
     dynamo_table                 = aws_dynamodb_table.photo_tracker.id
     photo_bucket                 = module.photo_bucket.s3_bucket_id
@@ -127,6 +145,18 @@ locals {
     cognito_identity_pool        = aws_cognito_identity_pool.identitypool.id
     cognito_user_pool            = aws_cognito_user_pool.pool.id
     cognito_user_pool_web_client = aws_cognito_user_pool_client.poolclient.id
+    dev                          = "true"
+  })
+
+  frontend_config_prod = templatefile("${path.module}/config/config.js", {
+    aws_region                   = data.aws_region.current.name
+    dynamo_table                 = aws_dynamodb_table.photo_tracker.id
+    photo_bucket                 = module.photo_bucket.s3_bucket_id
+    photo_assets_bucket          = module.photo_assets_bucket.s3_bucket_id
+    cognito_identity_pool        = aws_cognito_identity_pool.identitypool.id
+    cognito_user_pool            = aws_cognito_user_pool.pool.id
+    cognito_user_pool_web_client = aws_cognito_user_pool_client.poolclient.id
+    dev                          = "false"
   })
 }
 
@@ -134,14 +164,14 @@ resource "local_file" "react_config_dev" {
   count = var.enable_dev ? 1 : 0
 
   filename = "${path.module}/frontend/public/config.js"
-  content  = local.frontend_config
+  content  = local.frontend_config_dev
 }
 
 resource "aws_s3_object" "static_frontend_config_file" {
   bucket       = module.web_bucket.s3_bucket_id
   key          = "config.js"
-  content      = local.frontend_config
-  etag         = md5(local.frontend_config)
+  content      = local.frontend_config_prod
+  etag         = md5(local.frontend_config_prod)
   content_type = "application/javascript"
   tags         = local.tags
 }

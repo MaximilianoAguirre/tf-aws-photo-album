@@ -1,9 +1,9 @@
-import React, { useState, useContext, createContext, useEffect } from 'react'
+import React, { useContext, createContext, useEffect } from 'react'
 import { Grid } from 'antd'
-import createPersistedState from "use-persisted-state"
+import createPersistedState from 'use-persisted-state'
 
 const { useBreakpoint } = Grid
-const useImageSizeState = createPersistedState("image-size")
+const useImageSizeState = createPersistedState('image-size', window.sessionStorage)
 const ImageSizeContext = createContext()
 
 export function useImageSize() {
@@ -49,14 +49,16 @@ const set_size = (size, state) => {
 
 export function ImageSizeProvider({ children }) {
   const breakpoints = useBreakpoint()
-  const [state, setState] = useState({
+  const [state, setState] = useImageSizeState({
     current: 100,
-    available: get_available_widths(breakpoints),
-    full_screen_size: get_fullscreen_size(breakpoints)
+    available: [100, 300],
+    full_screen_size: 1280
   })
 
   // If viewport changes, resize if needed
   useEffect(() => {
+    if (Object.keys(breakpoints).length === 0) return
+
     setState((state) => {
       const updated_state = {
         available: get_available_widths(breakpoints),
@@ -66,7 +68,7 @@ export function ImageSizeProvider({ children }) {
       if (!updated_state['available'].includes(state['current'])) updated_state['current'] = get_available_widths(breakpoints).at(-1)
       return { ...state, ...updated_state }
     })
-  }, [breakpoints, setState])
+  }, [breakpoints])
 
   return (
     <ImageSizeContext.Provider

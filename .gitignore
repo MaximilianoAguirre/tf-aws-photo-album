@@ -40,3 +40,6 @@ provider.tf
 
 # WSL ignores
 *.Identifier
+
+# Python
+.venv

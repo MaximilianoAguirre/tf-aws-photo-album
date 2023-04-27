@@ -64,6 +64,15 @@ module "image_processor" {
 }
 
 ########################################################
+# IMAGE PROCESSOR CLOUDFRONT
+########################################################
+# resource "aws_serverlessapplicationrepository_cloudformation_stack" "postgres-rotator" {
+#   name           = "image-magick"
+#   application_id = "arn:aws:serverlessrepo:us-east-1:145266761615:applications/image-magick-lambda-layer"
+#   capabilities   = []
+# }
+
+########################################################
 # IMAGE REKOGNITION PROCESSING
 ########################################################
 module "image_processor_rekognition" {
@@ -222,4 +231,54 @@ module "cloudfront_invalidator" {
   environment_variables = {
     cf_distribution = aws_cloudfront_distribution.frontend_cloudfront.id
   }
+}
+
+########################################################
+# CLOUDFRONT URL SIGNER
+########################################################
+module "cloudfront_url_signer" {
+  source  = "terraform-aws-modules/lambda/aws"
+  version = "4.2.0"
+
+  function_name                     = "${local.dash_prefix}cloudfront-url-signer"
+  description                       = "Lambda to sign cloudfront private URLs"
+  handler                           = "main.lambda_handler"
+  runtime                           = "python3.8"
+  source_path                       = "${path.module}/lambda/cloudfront_url_signer"
+  artifacts_dir                     = "${path.module}/builds"
+  tags                              = local.tags
+  publish                           = true
+  recreate_missing_package          = true
+  ignore_source_code_hash           = true
+  attach_policy_statements          = true
+  cloudwatch_logs_retention_in_days = 14
+  timeout                           = 120
+  layers                            = [local.cryptography_layer]
+
+  policy_statements = {
+    secrets = {
+      effect    = "Allow"
+      actions   = ["secretsmanager:GetSecretValue"]
+      resources = [aws_secretsmanager_secret.cloudfront_private_key.arn]
+    }
+  }
+
+  environment_variables = {
+    cert_secret = aws_secretsmanager_secret.cloudfront_private_key.name
+    key_id      = aws_cloudfront_public_key.key.id
+    base_url    = "https://${local.dns}"
+  }
+}
+
+data "http" "latest_layers" {
+  url = "https://api.klayers.cloud/api/v2/p3.8/layers/latest/${data.aws_region.current.name}/"
+
+  request_headers = {
+    Accept = "application/json"
+  }
+}
+
+locals {
+  layers             = jsondecode(data.http.latest_layers.response_body)
+  cryptography_layer = [for layer in local.layers : layer.arn if layer.package == "cryptography"][0]
 }

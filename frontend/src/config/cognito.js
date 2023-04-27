@@ -5,6 +5,12 @@ export const cognitoConfig = {
     region: config.AWS_REGION,
     userPoolId: config.COGNITO_USER_POOL,
     userPoolWebClientId: config.COGNITO_USER_POOL_WEB_CLIENT,
-    identityPoolId: config.COGNITO_IDENTITY_POOL
+    identityPoolId: config.COGNITO_IDENTITY_POOL,
+    cookieStorage: {
+      domain: window.location.hostname,
+      expires: 365,
+      sameSite: 'lax',
+      secure: config.DEV === "true" ? false : true,
+    },
   }
 }
