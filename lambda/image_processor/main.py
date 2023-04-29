@@ -1,14 +1,14 @@
 import blurhash
 import boto3
-import json
 import os
-import urllib.parse
 import pygeohash as pgh
 
 from PIL import Image as pil_image, ImageOps
 from exif import Image as exif_image
 from pathlib import Path
 from datetime import datetime
+from aws_lambda_powertools.utilities.parser.models import S3Model
+from aws_lambda_powertools.utilities.parser import parse, envelopes
 
 PHOTO_TABLE = os.environ.get("photo_table")
 PHOTO_BUCKET = os.environ.get("photo_bucket")
@@ -181,14 +181,9 @@ def set_object_type(key):
 def lambda_handler(event, context):
     print(event)
 
-    # Get message from SNS
-    message = json.loads(event["Records"][0]["Sns"]["Message"])
-
-    # Get the object from the event and show its content type
-    bucket = message["Records"][0]["s3"]["bucket"]["name"]
-    key = urllib.parse.unquote_plus(
-        message["Records"][0]["s3"]["object"]["key"], encoding="utf-8"
-    )
+    parsed_event = parse(model=S3Model, envelope=envelopes.SnsEnvelope, event=event)
+    key = parsed_event[0].Records[0].s3.object.key
+    bucket = parsed_event[0].Records[0].s3.bucket.name
     print(f"Processing image {key}")
 
     # Create base item in dynamoDB

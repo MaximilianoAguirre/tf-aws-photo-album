@@ -22,6 +22,12 @@ resource "aws_cloudfront_distribution" "frontend_cloudfront" {
     origin_access_control_id = aws_cloudfront_origin_access_control.example.id
   }
 
+  origin {
+    domain_name              = "${awscc_s3objectlambda_access_point.lambda_endpoint.alias.value}.s3.${data.aws_region.current.name}.amazonaws.com"
+    origin_id                = "photoBucket2"
+    origin_access_control_id = aws_cloudfront_origin_access_control.example.id
+  }
+
   viewer_certificate {
     cloudfront_default_certificate = var.route53_public_zone_id == null
     acm_certificate_arn            = var.route53_public_zone_id == null ? null : aws_acm_certificate_validation.cert_validator[0].certificate_arn
@@ -48,10 +54,10 @@ resource "aws_cloudfront_distribution" "frontend_cloudfront" {
   ordered_cache_behavior {
     allowed_methods        = ["GET", "HEAD"]
     cached_methods         = ["GET", "HEAD"]
-    target_origin_id       = "photoBucket"
+    target_origin_id       = "photoBucket2"
     viewer_protocol_policy = "redirect-to-https"
     path_pattern           = "/images/*"
-    trusted_key_groups     = [aws_cloudfront_key_group.key_group.id]
+    # trusted_key_groups     = [aws_cloudfront_key_group.key_group.id]
 
     forwarded_values {
       query_string = false
@@ -71,13 +77,6 @@ resource "aws_cloudfront_distribution" "frontend_cloudfront" {
   custom_error_response {
     error_caching_min_ttl = "10"
     error_code            = "404"
-    response_code         = "200"
-    response_page_path    = "/index.html"
-  }
-
-  custom_error_response {
-    error_caching_min_ttl = "10"
-    error_code            = "403"
     response_code         = "200"
     response_page_path    = "/index.html"
   }

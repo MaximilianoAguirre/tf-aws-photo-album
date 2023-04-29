@@ -2,7 +2,9 @@ import boto3
 import time
 import json
 import os
-import urllib.parse
+
+from aws_lambda_powertools.utilities.parser.models import S3Model
+from aws_lambda_powertools.utilities.parser import parse, envelopes
 
 PHOTO_TABLE = os.environ.get("photo_table")
 PHOTO_BUCKET = os.environ.get("photo_bucket")
@@ -139,18 +141,8 @@ def process_with_rekognition(key):
 
 def lambda_handler(event, context):
     print(event)
+    parsed_event = parse(model=S3Model, envelope=envelopes.SnsSqsEnvelope, event=event)
 
-    for record in event["Records"]:
-        message = json.loads(json.loads(record["body"])["Message"])
-
-        try:
-            key = urllib.parse.unquote_plus(
-                message["Records"][0]["s3"]["object"]["key"], encoding="utf-8"
-            )
-        except:
-            print("Unable to get images to process")
-            return
-
-        print(f"Processing image {key}")
-
-        process_with_rekognition(key)
+    for s3_object in parsed_event[0].Records:
+        print(f"Processing image {s3_object.s3.object.key}")
+        process_with_rekognition(s3_object.s3.object.key)

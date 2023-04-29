@@ -11,12 +11,85 @@ module "photo_bucket" {
   force_destroy = true
 }
 
+resource "aws_s3_access_point" "lambda_endpoint" {
+  bucket = module.photo_bucket.s3_bucket_id
+  name   = "${local.dash_prefix}cloudfront-lambda"
+}
+
+resource "aws_s3control_access_point_policy" "lambda_endpoint" {
+  access_point_arn = aws_s3_access_point.lambda_endpoint.arn
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = "s3:*"
+      Principal = {
+        Service = "cloudfront.amazonaws.com"
+      }
+      Resource = [
+        aws_s3_access_point.lambda_endpoint.arn,
+        "${aws_s3_access_point.lambda_endpoint.arn}/object/*"
+      ]
+      Condition = {
+        "ForAnyValue:StringEquals" = {
+          "aws:CalledVia" = "s3-object-lambda.amazonaws.com"
+        }
+      }
+    }]
+  })
+}
+
+resource "awscc_s3objectlambda_access_point" "lambda_endpoint" {
+  name = "${local.dash_prefix}cloudfront-object-lambda2"
+
+  object_lambda_configuration = {
+    supporting_access_point = aws_s3_access_point.lambda_endpoint.arn
+
+    transformation_configurations = [
+      {
+        actions = ["GetObject"]
+
+        content_transformation = {
+          aws_lambda = {
+            function_arn = module.image_processor_cloudfront.lambda_function_arn
+          }
+        }
+      }
+    ]
+  }
+}
+
+resource "aws_s3control_object_lambda_access_point_policy" "lambda_endpoint" {
+  name = awscc_s3objectlambda_access_point.lambda_endpoint.name
+
+  policy = jsonencode({
+    Version = "2008-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = "s3-object-lambda:Get*"
+      Resource = awscc_s3objectlambda_access_point.lambda_endpoint.arn
+
+      Principal = {
+        Service = "cloudfront.amazonaws.com"
+      }
+
+      Condition = {
+        StringEquals = {
+          "aws:SourceArn" = aws_cloudfront_distribution.frontend_cloudfront.arn
+        }
+      }
+    }]
+  })
+}
+
 resource "aws_s3_bucket_policy" "photo_bucket" {
   bucket = module.photo_bucket.s3_bucket_id
 
   policy = templatefile("${path.module}/iam/cloudfront_bucket_access.json", {
     cloudfront_distribution = aws_cloudfront_distribution.frontend_cloudfront.arn
     bucket                  = module.photo_bucket.s3_bucket_id
+    account                 = data.aws_caller_identity.current.account_id
   })
 }
 
@@ -60,15 +133,6 @@ module "photo_assets_bucket" {
   force_destroy = true
 }
 
-resource "aws_s3_bucket_policy" "photo_assets_bucket" {
-  bucket = module.photo_assets_bucket.s3_bucket_id
-
-  policy = templatefile("${path.module}/iam/cloudfront_bucket_access.json", {
-    cloudfront_distribution = aws_cloudfront_distribution.frontend_cloudfront.arn
-    bucket                  = module.photo_assets_bucket.s3_bucket_id
-  })
-}
-
 resource "aws_s3_bucket_cors_configuration" "photo_assets_bucket" {
   bucket = module.photo_assets_bucket.s3_bucket_id
 
@@ -100,6 +164,7 @@ resource "aws_s3_bucket_policy" "web_bucket_policy" {
   policy = templatefile("${path.module}/iam/cloudfront_bucket_access.json", {
     cloudfront_distribution = aws_cloudfront_distribution.frontend_cloudfront.arn
     bucket                  = module.web_bucket.s3_bucket_id
+    account                 = data.aws_caller_identity.current.account_id
   })
 }
 

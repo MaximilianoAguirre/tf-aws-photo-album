@@ -18,7 +18,6 @@ module "image_processor" {
   runtime                           = "python3.8"
   source_path                       = "${path.module}/lambda/image_processor"
   artifacts_dir                     = "${path.module}/builds"
-  layers                            = [aws_lambda_layer_version.python38_image_processor.arn]
   tags                              = local.tags
   publish                           = true
   recreate_missing_package          = true
@@ -27,6 +26,11 @@ module "image_processor" {
   cloudwatch_logs_retention_in_days = 14
   timeout                           = 900 // Max timeout to process images
   memory_size                       = 1024
+
+  layers = [
+    aws_lambda_layer_version.python38_image_processor.arn,
+    "arn:aws:lambda:${data.aws_region.current.name}:017000801446:layer:AWSLambdaPowertoolsPythonV2:31"
+  ]
 
   allowed_triggers = {
     sns = {
@@ -66,11 +70,66 @@ module "image_processor" {
 ########################################################
 # IMAGE PROCESSOR CLOUDFRONT
 ########################################################
-# resource "aws_serverlessapplicationrepository_cloudformation_stack" "postgres-rotator" {
-#   name           = "image-magick"
-#   application_id = "arn:aws:serverlessrepo:us-east-1:145266761615:applications/image-magick-lambda-layer"
-#   capabilities   = []
-# }
+resource "aws_lambda_layer_version" "image_magick" {
+  layer_name          = "${local.dash_prefix}image-magick"
+  description         = "Built from https://github.com/serverlesspub/imagemagick-aws-lambda-2"
+  filename            = "${path.module}/lambda_layers/imagemagick/imagemagick.zip"
+  source_code_hash    = filebase64sha256("${path.module}/lambda_layers/imagemagick/imagemagick.zip")
+  compatible_runtimes = ["python3.8"]
+}
+
+resource "aws_lambda_layer_version" "wand" {
+  layer_name          = "${local.dash_prefix}wand"
+  filename            = "${path.module}/lambda_layers/wand/wand.zip"
+  source_code_hash    = filebase64sha256("${path.module}/lambda_layers/wand/wand.zip")
+  compatible_runtimes = ["python3.8"]
+}
+
+module "image_processor_cloudfront" {
+  source  = "terraform-aws-modules/lambda/aws"
+  version = "4.2.0"
+
+  function_name                     = "${local.dash_prefix}image-processor-cloudfront"
+  description                       = "Lambda to process images requested by cloudfront"
+  handler                           = "main.lambda_handler"
+  runtime                           = "python3.8"
+  source_path                       = "${path.module}/lambda/image_processor_cloudfront"
+  artifacts_dir                     = "${path.module}/builds"
+  tags                              = local.tags
+  publish                           = true
+  recreate_missing_package          = true
+  ignore_source_code_hash           = true
+  cloudwatch_logs_retention_in_days = 14
+  timeout                           = 900 // Max timeout to process images
+  memory_size                       = 1024
+
+  layers = [
+    aws_lambda_layer_version.image_magick.arn,
+    aws_lambda_layer_version.wand.arn,
+    aws_lambda_layer_version.python38_image_processor.arn,
+    "arn:aws:lambda:${data.aws_region.current.name}:017000801446:layer:AWSLambdaPowertoolsPythonV2:31"
+  ]
+
+  allowed_triggers = {
+    cloudfront = {
+      principal  = "cloudfront.amazonaws.com"
+      # source_arn = aws_cloudfront_distribution.frontend_cloudfront.arn
+    }
+  }
+}
+
+resource "aws_iam_role_policy" "test" {
+  role = module.image_processor_cloudfront.lambda_role_name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["s3-object-lambda:WriteGetObjectResponse"]
+      Resource = [awscc_s3objectlambda_access_point.lambda_endpoint.arn]
+    }]
+  })
+}
 
 ########################################################
 # IMAGE REKOGNITION PROCESSING
@@ -86,6 +145,7 @@ module "image_processor_rekognition" {
   source_path                       = "${path.module}/lambda/image_rekognition"
   artifacts_dir                     = "${path.module}/builds"
   tags                              = local.tags
+  layers                            = ["arn:aws:lambda:${data.aws_region.current.name}:017000801446:layer:AWSLambdaPowertoolsPythonV2:31"]
   publish                           = true
   recreate_missing_package          = true
   ignore_source_code_hash           = true
@@ -151,6 +211,7 @@ module "image_deletion" {
   source_path                       = "${path.module}/lambda/image_deletion"
   artifacts_dir                     = "${path.module}/builds"
   tags                              = local.tags
+  layers                            = ["arn:aws:lambda:${data.aws_region.current.name}:017000801446:layer:AWSLambdaPowertoolsPythonV2:31"]
   publish                           = true
   recreate_missing_package          = true
   ignore_source_code_hash           = true
