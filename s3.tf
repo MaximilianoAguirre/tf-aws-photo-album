@@ -43,6 +43,12 @@ resource "aws_s3control_access_point_policy" "lambda_endpoint" {
 resource "awscc_s3objectlambda_access_point" "lambda_endpoint" {
   name = "${local.dash_prefix}cloudfront-object-lambda2"
 
+  lifecycle {
+    ignore_changes = [
+      object_lambda_configuration
+    ]
+  }
+
   object_lambda_configuration = {
     supporting_access_point = aws_s3_access_point.lambda_endpoint.arn
 

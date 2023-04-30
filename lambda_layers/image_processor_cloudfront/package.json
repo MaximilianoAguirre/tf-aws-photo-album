@@ -1,0 +1,8 @@
+{
+    "name": "serverless-aws-s3-object-lambda-image-resize",
+    "version": "1.0.0",
+    "description": "",
+    "dependencies": {
+        "axios": "0.21.1"
+    }
+}

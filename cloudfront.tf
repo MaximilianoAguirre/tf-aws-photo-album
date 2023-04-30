@@ -13,19 +13,19 @@ resource "aws_cloudfront_distribution" "frontend_cloudfront" {
   origin {
     domain_name              = module.web_bucket.s3_bucket_bucket_regional_domain_name
     origin_id                = "frontendBucket"
-    origin_access_control_id = aws_cloudfront_origin_access_control.example.id
+    origin_access_control_id = aws_cloudfront_origin_access_control.cloudfront_oac.id
   }
 
   origin {
     domain_name              = module.photo_bucket.s3_bucket_bucket_regional_domain_name
     origin_id                = "photoBucket"
-    origin_access_control_id = aws_cloudfront_origin_access_control.example.id
+    origin_access_control_id = aws_cloudfront_origin_access_control.cloudfront_oac.id
   }
 
   origin {
     domain_name              = "${awscc_s3objectlambda_access_point.lambda_endpoint.alias.value}.s3.${data.aws_region.current.name}.amazonaws.com"
     origin_id                = "photoBucket2"
-    origin_access_control_id = aws_cloudfront_origin_access_control.example.id
+    origin_access_control_id = aws_cloudfront_origin_access_control.cloudfront_oac.id
   }
 
   viewer_certificate {
@@ -41,30 +41,22 @@ resource "aws_cloudfront_distribution" "frontend_cloudfront" {
     target_origin_id       = "frontendBucket"
     viewer_protocol_policy = "redirect-to-https"
     compress               = true
-
-    forwarded_values {
-      query_string = false
-
-      cookies {
-        forward = "none"
-      }
-    }
+    cache_policy_id        = aws_cloudfront_cache_policy.frontend_cache_policy.id
   }
 
   ordered_cache_behavior {
-    allowed_methods        = ["GET", "HEAD"]
-    cached_methods         = ["GET", "HEAD"]
-    target_origin_id       = "photoBucket2"
-    viewer_protocol_policy = "redirect-to-https"
-    path_pattern           = "/images/*"
+    allowed_methods          = ["GET", "HEAD"]
+    cached_methods           = ["GET", "HEAD"]
+    target_origin_id         = "photoBucket2"
+    viewer_protocol_policy   = "redirect-to-https"
+    path_pattern             = "/images/*"
+    cache_policy_id          = aws_cloudfront_cache_policy.photo_cache_policy.id
+    origin_request_policy_id = data.aws_cloudfront_origin_request_policy.AllViewerExceptHostHeader.id
     # trusted_key_groups     = [aws_cloudfront_key_group.key_group.id]
 
-    forwarded_values {
-      query_string = false
-
-      cookies {
-        forward = "none"
-      }
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.path_processor.arn
     }
   }
 
@@ -82,9 +74,50 @@ resource "aws_cloudfront_distribution" "frontend_cloudfront" {
   }
 }
 
-resource "aws_cloudfront_origin_access_control" "example" {
-  name                              = "example"
-  description                       = "Example Policy"
+data "aws_cloudfront_origin_request_policy" "AllViewerExceptHostHeader" {
+  name = "Managed-AllViewerExceptHostHeader"
+}
+
+resource "aws_cloudfront_cache_policy" "photo_cache_policy" {
+  name    = "WidthHeightQueryStrings"
+  min_ttl = 3600
+
+  parameters_in_cache_key_and_forwarded_to_origin {
+    cookies_config { cookie_behavior = "none" }
+    headers_config { header_behavior = "none" }
+
+    query_strings_config {
+      query_string_behavior = "whitelist"
+
+      query_strings {
+        items = ["resize", "crop", "format"]
+      }
+    }
+  }
+}
+
+resource "aws_cloudfront_cache_policy" "frontend_cache_policy" {
+  name    = "None"
+  min_ttl = 3600
+
+  parameters_in_cache_key_and_forwarded_to_origin {
+    cookies_config { cookie_behavior = "none" }
+    headers_config { header_behavior = "none" }
+    query_strings_config { query_string_behavior = "none" }
+  }
+}
+
+resource "aws_cloudfront_function" "path_processor" {
+  name    = "process-path"
+  runtime = "cloudfront-js-1.0"
+  comment = "my function"
+  publish = true
+  code    = file("${path.module}/lambda/cloudfront_path_processor/main.js")
+}
+
+resource "aws_cloudfront_origin_access_control" "cloudfront_oac" {
+  name                              = "cloudfront-oac"
+  description                       = "Photoalbum OAC"
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
   signing_protocol                  = "sigv4"

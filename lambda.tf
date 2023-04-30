@@ -75,14 +75,14 @@ resource "aws_lambda_layer_version" "image_magick" {
   description         = "Built from https://github.com/serverlesspub/imagemagick-aws-lambda-2"
   filename            = "${path.module}/lambda_layers/imagemagick/imagemagick.zip"
   source_code_hash    = filebase64sha256("${path.module}/lambda_layers/imagemagick/imagemagick.zip")
-  compatible_runtimes = ["python3.8"]
+  compatible_runtimes = ["python3.8", "nodejs16.x"]
 }
 
-resource "aws_lambda_layer_version" "wand" {
-  layer_name          = "${local.dash_prefix}wand"
-  filename            = "${path.module}/lambda_layers/wand/wand.zip"
-  source_code_hash    = filebase64sha256("${path.module}/lambda_layers/wand/wand.zip")
-  compatible_runtimes = ["python3.8"]
+resource "aws_lambda_layer_version" "image_processor_cloudfront" {
+  layer_name          = "${local.dash_prefix}image-processor-cloudfront"
+  filename            = "${path.module}/lambda_layers/image_processor_cloudfront/image_processor_cloudfront.zip"
+  source_code_hash    = filebase64sha256("${path.module}/lambda_layers/image_processor_cloudfront/image_processor_cloudfront.zip")
+  compatible_runtimes = ["nodejs16.x"]
 }
 
 module "image_processor_cloudfront" {
@@ -91,8 +91,8 @@ module "image_processor_cloudfront" {
 
   function_name                     = "${local.dash_prefix}image-processor-cloudfront"
   description                       = "Lambda to process images requested by cloudfront"
-  handler                           = "main.lambda_handler"
-  runtime                           = "python3.8"
+  handler                           = "main.resizer"
+  runtime                           = "nodejs16.x"
   source_path                       = "${path.module}/lambda/image_processor_cloudfront"
   artifacts_dir                     = "${path.module}/builds"
   tags                              = local.tags
@@ -105,15 +105,12 @@ module "image_processor_cloudfront" {
 
   layers = [
     aws_lambda_layer_version.image_magick.arn,
-    aws_lambda_layer_version.wand.arn,
-    aws_lambda_layer_version.python38_image_processor.arn,
-    "arn:aws:lambda:${data.aws_region.current.name}:017000801446:layer:AWSLambdaPowertoolsPythonV2:31"
+    aws_lambda_layer_version.image_processor_cloudfront.arn
   ]
 
   allowed_triggers = {
     cloudfront = {
-      principal  = "cloudfront.amazonaws.com"
-      # source_arn = aws_cloudfront_distribution.frontend_cloudfront.arn
+      principal = "cloudfront.amazonaws.com"
     }
   }
 }
