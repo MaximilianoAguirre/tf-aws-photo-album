@@ -62,6 +62,7 @@ resource "aws_iam_policy" "reader" {
     photo_bucket        = module.photo_bucket.s3_bucket_arn
     photo_assets_bucket = module.photo_assets_bucket.s3_bucket_arn
     dynamodb_table      = aws_dynamodb_table.photo_tracker.arn
+    sign_url_lambda     = module.cloudfront_url_signer.lambda_function_arn
   })
 }
 

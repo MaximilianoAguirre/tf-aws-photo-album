@@ -21,7 +21,6 @@ module "image_processor" {
   tags                              = local.tags
   publish                           = true
   recreate_missing_package          = true
-  ignore_source_code_hash           = true
   attach_policy_statements          = true
   cloudwatch_logs_retention_in_days = 14
   timeout                           = 900 // Max timeout to process images
@@ -98,7 +97,6 @@ module "image_processor_cloudfront" {
   tags                              = local.tags
   publish                           = true
   recreate_missing_package          = true
-  ignore_source_code_hash           = true
   cloudwatch_logs_retention_in_days = 14
   timeout                           = 900 // Max timeout to process images
   memory_size                       = 1024
@@ -115,16 +113,11 @@ module "image_processor_cloudfront" {
   }
 }
 
-resource "aws_iam_role_policy" "test" {
+resource "aws_iam_role_policy" "image_processor_cloudfront_WriteGetObjectResponse" {
   role = module.image_processor_cloudfront.lambda_role_name
 
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Effect   = "Allow"
-      Action   = ["s3-object-lambda:WriteGetObjectResponse"]
-      Resource = [awscc_s3objectlambda_access_point.lambda_endpoint.arn]
-    }]
+  policy = templatefile("${path.module}/iam/lambda_s3_object_lambda.json", {
+    s3_object_lambda_access_point = awscc_s3objectlambda_access_point.lambda_endpoint.arn
   })
 }
 
@@ -145,7 +138,6 @@ module "image_processor_rekognition" {
   layers                            = ["arn:aws:lambda:${data.aws_region.current.name}:017000801446:layer:AWSLambdaPowertoolsPythonV2:31"]
   publish                           = true
   recreate_missing_package          = true
-  ignore_source_code_hash           = true
   attach_policy_statements          = true
   cloudwatch_logs_retention_in_days = 14
   timeout                           = 240
@@ -211,7 +203,6 @@ module "image_deletion" {
   layers                            = ["arn:aws:lambda:${data.aws_region.current.name}:017000801446:layer:AWSLambdaPowertoolsPythonV2:31"]
   publish                           = true
   recreate_missing_package          = true
-  ignore_source_code_hash           = true
   attach_policy_statements          = true
   cloudwatch_logs_retention_in_days = 14
   timeout                           = 120
@@ -267,7 +258,6 @@ module "cloudfront_invalidator" {
   tags                              = local.tags
   publish                           = true
   recreate_missing_package          = true
-  ignore_source_code_hash           = true
   attach_policy_statements          = true
   cloudwatch_logs_retention_in_days = 14
   timeout                           = 120
@@ -307,7 +297,6 @@ module "cloudfront_url_signer" {
   tags                              = local.tags
   publish                           = true
   recreate_missing_package          = true
-  ignore_source_code_hash           = true
   attach_policy_statements          = true
   cloudwatch_logs_retention_in_days = 14
   timeout                           = 120

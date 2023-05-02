@@ -23,19 +23,17 @@ module.exports.resizer = async (event, context) => {
             const tmp_file = `${os.tmpdir()}/file`
             await downloadFile.download(inputS3Url, tmp_file)
 
-            // PROCESS HERE
+            if (crop) {
+                await childProcessPromise.spawn(
+                    '/opt/bin/convert',
+                    [tmp_file, '-crop', crop, tmp_file]
+                )
+            }
 
             if (resize) {
                 await childProcessPromise.spawn(
                     '/opt/bin/convert',
                     [tmp_file, '-resize', resize, tmp_file]
-                )
-            }
-
-            if (crop) {
-                await childProcessPromise.spawn(
-                    '/opt/bin/convert',
-                    [tmp_file, '-crop', crop, tmp_file]
                 )
             }
 

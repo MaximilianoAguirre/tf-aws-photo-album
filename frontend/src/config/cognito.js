@@ -10,7 +10,7 @@ export const cognitoConfig = {
       domain: window.location.hostname,
       expires: 365,
       sameSite: 'lax',
-      secure: config.DEV === "true" ? false : true,
-    },
+      secure: config.DEV
+    }
   }
 }

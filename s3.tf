@@ -6,7 +6,6 @@ module "photo_bucket" {
   version = "3.4.0"
 
   bucket_prefix = "${local.dash_prefix}photos-"
-  acl           = "private"
   tags          = local.tags
   force_destroy = true
 }
@@ -19,35 +18,15 @@ resource "aws_s3_access_point" "lambda_endpoint" {
 resource "aws_s3control_access_point_policy" "lambda_endpoint" {
   access_point_arn = aws_s3_access_point.lambda_endpoint.arn
 
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Effect = "Allow"
-      Action = "s3:*"
-      Principal = {
-        Service = "cloudfront.amazonaws.com"
-      }
-      Resource = [
-        aws_s3_access_point.lambda_endpoint.arn,
-        "${aws_s3_access_point.lambda_endpoint.arn}/object/*"
-      ]
-      Condition = {
-        "ForAnyValue:StringEquals" = {
-          "aws:CalledVia" = "s3-object-lambda.amazonaws.com"
-        }
-      }
-    }]
+  policy = templatefile("${path.module}/iam/s3_access_point.json", {
+    access_point = aws_s3_access_point.lambda_endpoint.arn
   })
 }
 
 resource "awscc_s3objectlambda_access_point" "lambda_endpoint" {
-  name = "${local.dash_prefix}cloudfront-object-lambda2"
+  name = "${local.dash_prefix}cloudfront-object-lambda"
 
-  lifecycle {
-    ignore_changes = [
-      object_lambda_configuration
-    ]
-  }
+  lifecycle { ignore_changes = [object_lambda_configuration] }
 
   object_lambda_configuration = {
     supporting_access_point = aws_s3_access_point.lambda_endpoint.arn
@@ -69,33 +48,18 @@ resource "awscc_s3objectlambda_access_point" "lambda_endpoint" {
 resource "aws_s3control_object_lambda_access_point_policy" "lambda_endpoint" {
   name = awscc_s3objectlambda_access_point.lambda_endpoint.name
 
-  policy = jsonencode({
-    Version = "2008-10-17"
-    Statement = [{
-      Effect   = "Allow"
-      Action   = "s3-object-lambda:Get*"
-      Resource = awscc_s3objectlambda_access_point.lambda_endpoint.arn
-
-      Principal = {
-        Service = "cloudfront.amazonaws.com"
-      }
-
-      Condition = {
-        StringEquals = {
-          "aws:SourceArn" = aws_cloudfront_distribution.frontend_cloudfront.arn
-        }
-      }
-    }]
+  policy = templatefile("${path.module}/iam/s3_object_lambda_access_point.json", {
+    s3_object_lambda_access_point = awscc_s3objectlambda_access_point.lambda_endpoint.arn
+    cloudfront_distribution       = aws_cloudfront_distribution.frontend_cloudfront.arn
   })
 }
 
 resource "aws_s3_bucket_policy" "photo_bucket" {
   bucket = module.photo_bucket.s3_bucket_id
 
-  policy = templatefile("${path.module}/iam/cloudfront_bucket_access.json", {
-    cloudfront_distribution = aws_cloudfront_distribution.frontend_cloudfront.arn
-    bucket                  = module.photo_bucket.s3_bucket_id
-    account                 = data.aws_caller_identity.current.account_id
+  policy = templatefile("${path.module}/iam/s3_bucket_access_point.json", {
+    bucket  = module.photo_bucket.s3_bucket_id
+    account = data.aws_caller_identity.current.account_id
   })
 }
 
@@ -134,7 +98,6 @@ module "photo_assets_bucket" {
   version = "3.4.0"
 
   bucket_prefix = "${local.dash_prefix}assets-"
-  acl           = "private"
   tags          = local.tags
   force_destroy = true
 }
@@ -159,7 +122,6 @@ module "web_bucket" {
   version = "3.4.0"
 
   bucket_prefix = "${local.dash_prefix}web-host-"
-  acl           = "private"
   tags          = local.tags
   force_destroy = true
 }
@@ -167,10 +129,9 @@ module "web_bucket" {
 resource "aws_s3_bucket_policy" "web_bucket_policy" {
   bucket = module.web_bucket.s3_bucket_id
 
-  policy = templatefile("${path.module}/iam/cloudfront_bucket_access.json", {
+  policy = templatefile("${path.module}/iam/s3_bucket_cloudfront.json", {
     cloudfront_distribution = aws_cloudfront_distribution.frontend_cloudfront.arn
     bucket                  = module.web_bucket.s3_bucket_id
-    account                 = data.aws_caller_identity.current.account_id
   })
 }
 
@@ -182,7 +143,6 @@ module "web_build_bucket" {
   version = "3.4.0"
 
   bucket_prefix = "${local.dash_prefix}web-build-"
-  acl           = "private"
   tags          = local.tags
   force_destroy = true
   versioning    = { status = true }
@@ -208,26 +168,21 @@ resource "aws_s3_object" "frontend_build_source" {
 # FRONTEND CONFIGURATION FILE
 ########################################################
 locals {
-  frontend_config_dev = templatefile("${path.module}/config/config.js", {
-    aws_region                   = data.aws_region.current.name
-    dynamo_table                 = aws_dynamodb_table.photo_tracker.id
-    photo_bucket                 = module.photo_bucket.s3_bucket_id
-    photo_assets_bucket          = module.photo_assets_bucket.s3_bucket_id
-    cognito_identity_pool        = aws_cognito_identity_pool.identitypool.id
-    cognito_user_pool            = aws_cognito_user_pool.pool.id
-    cognito_user_pool_web_client = aws_cognito_user_pool_client.poolclient.id
-    dev                          = "true"
-  })
+  frontend_config = {
+    AWS_REGION                   = data.aws_region.current.name
+    DYNAMO_TABLE                 = aws_dynamodb_table.photo_tracker.id
+    PHOTO_BUCKET                 = module.photo_bucket.s3_bucket_id
+    PHOTO_ASSETS_BUCKET          = module.photo_assets_bucket.s3_bucket_id
+    COGNITO_IDENTITY_POOL        = aws_cognito_identity_pool.identitypool.id
+    COGNITO_USER_POOL            = aws_cognito_user_pool.pool.id
+    COGNITO_USER_POOL_WEB_CLIENT = aws_cognito_user_pool_client.poolclient.id
+    URL_SIGNER_LAMBDA            = module.cloudfront_url_signer.lambda_function_name
+  }
 
   frontend_config_prod = templatefile("${path.module}/config/config.js", {
-    aws_region                   = data.aws_region.current.name
-    dynamo_table                 = aws_dynamodb_table.photo_tracker.id
-    photo_bucket                 = module.photo_bucket.s3_bucket_id
-    photo_assets_bucket          = module.photo_assets_bucket.s3_bucket_id
-    cognito_identity_pool        = aws_cognito_identity_pool.identitypool.id
-    cognito_user_pool            = aws_cognito_user_pool.pool.id
-    cognito_user_pool_web_client = aws_cognito_user_pool_client.poolclient.id
-    dev                          = "false"
+    config = jsonencode(merge(local.frontend_config, {
+      DEV = false
+    }))
   })
 }
 
@@ -235,7 +190,12 @@ resource "local_file" "react_config_dev" {
   count = var.enable_dev ? 1 : 0
 
   filename = "${path.module}/frontend/public/config.js"
-  content  = local.frontend_config_dev
+
+  content = templatefile("${path.module}/config/config.js", {
+    config = jsonencode(merge(local.frontend_config, {
+      DEV = true
+    }))
+  })
 }
 
 resource "aws_s3_object" "static_frontend_config_file" {

@@ -18,6 +18,12 @@
                 "${photo_bucket}/*",
                 "${photo_assets_bucket}/*"
             ]
+        },
+        {
+            "Sid": "SignUrlExecutor",
+            "Effect": "Allow",
+            "Action": "lambda:InvokeFunction",
+            "Resource": "${sign_url_lambda}"
         }
     ]
 }

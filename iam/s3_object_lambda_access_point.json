@@ -1,0 +1,18 @@
+{
+    "Version": "2008-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "s3-object-lambda:Get*",
+            "Resource": "${s3_object_lambda_access_point}",
+            "Principal": {
+                "Service": "cloudfront.amazonaws.com"
+            },
+            "Condition": {
+                "StringEquals": {
+                    "aws:SourceArn": "${cloudfront_distribution}"
+                }
+            }
+        }
+    ]
+}

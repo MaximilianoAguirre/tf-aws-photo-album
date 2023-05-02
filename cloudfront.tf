@@ -1,10 +1,10 @@
 ########################################################
-# CLOUDFRONT DISTRIBUTION
+# DISTRIBUTION
 ########################################################
 resource "aws_cloudfront_distribution" "frontend_cloudfront" {
   enabled             = true
   is_ipv6_enabled     = true
-  comment             = "Cloudfront distribution serving photo album frontend"
+  comment             = "Cloudfront distribution serving photo album"
   default_root_object = "index.html"
   price_class         = "PriceClass_100"
   tags                = local.tags
@@ -17,14 +17,8 @@ resource "aws_cloudfront_distribution" "frontend_cloudfront" {
   }
 
   origin {
-    domain_name              = module.photo_bucket.s3_bucket_bucket_regional_domain_name
-    origin_id                = "photoBucket"
-    origin_access_control_id = aws_cloudfront_origin_access_control.cloudfront_oac.id
-  }
-
-  origin {
     domain_name              = "${awscc_s3objectlambda_access_point.lambda_endpoint.alias.value}.s3.${data.aws_region.current.name}.amazonaws.com"
-    origin_id                = "photoBucket2"
+    origin_id                = "photoBucket"
     origin_access_control_id = aws_cloudfront_origin_access_control.cloudfront_oac.id
   }
 
@@ -47,12 +41,12 @@ resource "aws_cloudfront_distribution" "frontend_cloudfront" {
   ordered_cache_behavior {
     allowed_methods          = ["GET", "HEAD"]
     cached_methods           = ["GET", "HEAD"]
-    target_origin_id         = "photoBucket2"
+    target_origin_id         = "photoBucket"
     viewer_protocol_policy   = "redirect-to-https"
     path_pattern             = "/images/*"
     cache_policy_id          = aws_cloudfront_cache_policy.photo_cache_policy.id
     origin_request_policy_id = data.aws_cloudfront_origin_request_policy.AllViewerExceptHostHeader.id
-    # trusted_key_groups     = [aws_cloudfront_key_group.key_group.id]
+    trusted_key_groups     = [aws_cloudfront_key_group.key_group.id]
 
     function_association {
       event_type   = "viewer-request"
@@ -72,14 +66,24 @@ resource "aws_cloudfront_distribution" "frontend_cloudfront" {
     response_code         = "200"
     response_page_path    = "/index.html"
   }
+
+  custom_error_response {
+    error_caching_min_ttl = "10"
+    error_code            = "403"
+    response_code         = "200"
+    response_page_path    = "/index.html"
+  }
 }
 
+########################################################
+# POLICIES
+########################################################
 data "aws_cloudfront_origin_request_policy" "AllViewerExceptHostHeader" {
   name = "Managed-AllViewerExceptHostHeader"
 }
 
 resource "aws_cloudfront_cache_policy" "photo_cache_policy" {
-  name    = "WidthHeightQueryStrings"
+  name    = "${local.dash_prefix}WidthHeightQueryStrings"
   min_ttl = 3600
 
   parameters_in_cache_key_and_forwarded_to_origin {
@@ -107,16 +111,22 @@ resource "aws_cloudfront_cache_policy" "frontend_cache_policy" {
   }
 }
 
+########################################################
+# FUNCTIONS
+########################################################
 resource "aws_cloudfront_function" "path_processor" {
-  name    = "process-path"
+  name    = "${local.dash_prefix}process-path"
   runtime = "cloudfront-js-1.0"
-  comment = "my function"
+  comment = "Function to remove the prefix of the photo url"
   publish = true
   code    = file("${path.module}/lambda/cloudfront_path_processor/main.js")
 }
 
+########################################################
+# OAC
+########################################################
 resource "aws_cloudfront_origin_access_control" "cloudfront_oac" {
-  name                              = "cloudfront-oac"
+  name                              = "${local.dash_prefix}cloudfront-oac"
   description                       = "Photoalbum OAC"
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
@@ -124,7 +134,7 @@ resource "aws_cloudfront_origin_access_control" "cloudfront_oac" {
 }
 
 ########################################################
-# CLOUDFRONT ACCESS KEYS
+# ACCESS KEYS
 ########################################################
 resource "tls_private_key" "cloudfront_access_key" {
   algorithm = "RSA"
@@ -144,8 +154,9 @@ resource "aws_cloudfront_key_group" "key_group" {
 }
 
 resource "aws_secretsmanager_secret" "cloudfront_private_key" {
-  name = "${local.dash_prefix}cloudfront-private-key"
-  tags = local.tags
+  name                    = "${local.dash_prefix}cloudfront-key"
+  recovery_window_in_days = 0
+  tags                    = local.tags
 }
 
 resource "aws_secretsmanager_secret_version" "cloudfront_private_key" {

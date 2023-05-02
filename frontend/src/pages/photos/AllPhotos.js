@@ -3,16 +3,20 @@ import { Col, Row, Empty, Divider, Timeline } from 'antd'
 import InfiniteScroll from 'react-infinite-scroll-component'
 
 import { useAllPhotosInfinite } from 'api/dynamo'
+import { usePhotoURL } from 'api/cloudfront'
 import { CustomImage, StickyHeader, CustomSpinner, WrappedSpinner, ImagePreview } from 'components'
 import { useImageSize } from 'context'
 
 const dateFormatter = new Intl.DateTimeFormat('en-US', { month: 'long', year: '2-digit' })
 
 export const AllPhotos = () => {
+  const { data: url } = usePhotoURL({ key: 'IMG-20210415-WA0025.jpg', resize: "300x" })
   const preview = useRef()
   const [currentPreview, setCurrentPreview] = useState(null)
   const { current: width } = useImageSize()
   const { data, isLoading, fetchNextPage, hasNextPage } = useAllPhotosInfinite(200)
+
+  console.log(url)
 
   // Process all pages returned by DynamoDB and create a single list of photos
   const photos = data?.pages.reduce((acc, curr) => {

@@ -1,0 +1,21 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "s3:*",
+            "Principal": {
+                "Service": "cloudfront.amazonaws.com"
+            },
+            "Resource": [
+                "${access_point}",
+                "${access_point}/object/*"
+            ],
+            "Condition": {
+                "ForAnyValue:StringEquals": {
+                    "aws:CalledVia": "s3-object-lambda.amazonaws.com"
+                }
+            }
+        }
+    ]
+}

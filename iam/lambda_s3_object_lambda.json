@@ -1,0 +1,11 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "WriteGetObjectResponse",
+            "Effect": "Allow",
+            "Action": "s3-object-lambda:WriteGetObjectResponse",
+            "Resource": "${s3_object_lambda_access_point}"
+        }
+    ]
+}
